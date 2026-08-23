@@ -4,6 +4,12 @@ import { isClosingSoon } from "@/lib/format/formatCountdown";
 import type { ProposalCheck, TradeProposal } from "@/types/copilot";
 import type { Side } from "@/types/market";
 
+/** These run on the server, where reading the clock directly is safe. */
+function currentSecond(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+
 /** Contracts trade on a grid, so sizes are whole numbers. */
 const CONTRACT_STEP = 1;
 
@@ -44,7 +50,9 @@ export function buildTradeProposal({
   contracts,
   availableUsdc,
 }: BuildTradeProposalInput): TradeProposal | null {
-  const market = getMockMarkets().find((candidate) => candidate.marketId === marketId);
+  const market = getMockMarkets(currentSecond()).find(
+    (candidate) => candidate.marketId === marketId
+  );
   if (!market) {
     return null;
   }
