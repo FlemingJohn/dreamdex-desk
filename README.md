@@ -146,8 +146,41 @@ Four are worth calling out, because nothing else surfaces them:
 
 ## The copilot in detail
 
-Sixteen tools. It **draws** its answers rather than describing them, shows its
-working, and cannot spend your money.
+One agent, **16 tools**, backed by gpt-4o through Azure OpenAI. It **draws** its
+answers rather than describing them, shows its working, and cannot spend your
+money.
+
+### The 16 tools
+
+**11 read tools** — run freely, they only look:
+
+| Tool | Answers |
+| --- | --- |
+| `listMarkets` | what windows are open |
+| `getOrderBook` | resting depth on one market |
+| `getCalibration` | does a price of 0.7 win 70% of the time |
+| `findEdge` | what is worth buying, and how much to stake |
+| `getProbabilityPath` | when in a window a position is cheapest |
+| `getLiquidity` | which series actually trade |
+| `getSettlementQuality` | void rate and resolution latency |
+| `explainSettlement` | why a market resolved that way, with the oracle link |
+| `getPortfolio` | the connected wallet's positions |
+| `listWorkingOrders` | what is resting, and what it has locked |
+| `findStrandedFunds` | markets that expired without paying out |
+
+**5 write tools** — four run when asked, one cannot:
+
+| Tool | Class | Behaviour |
+| --- | --- | --- |
+| `cancelOrders` | recover | runs |
+| `reduceOrder` | recover | runs |
+| `unblockMarket` | recover | runs |
+| `sweepVaults` | recover | runs |
+| **`proposeTrade`** | **spend** | **produces a proposal. cannot execute.** |
+
+That last row is the safety model in one line. It is the only tool that can lead
+to money leaving your wallet, and it is structurally incapable of doing so on its
+own.
 
 ### 1. Generative UI
 
@@ -256,7 +289,21 @@ configuration at all — the venue is discovered at runtime.
 
 ## How to test every feature
 
-Three tiers. Tier 1 needs nothing but the dev server.
+### The fast way
+
+```bash
+node scripts/smoke-test.mjs 0xYourAddress      # address optional
+```
+
+**26 checks** across pages, chain reads, wallet reads, proposals, all copilot
+tools and every guardrail. Last run: **26 of 26 passed** against live Shannon.
+
+Signing is deliberately not covered — the wallet lives in the browser, so no
+script can drive it. Tier 3 below covers those by hand.
+
+### By hand, in three tiers
+
+Tier 1 needs nothing but the dev server.
 
 ### Tier 1 — no wallet required
 
