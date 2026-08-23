@@ -4,7 +4,7 @@ import { PanelShell } from "@/components/dashboard/PanelShell";
 import { Badge } from "@/components/ui/badge";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import { useOrderBook } from "@/hooks/useOrderBook";
-import { formatProbability } from "@/lib/format/formatProbability";
+import { formatProbability, formatSpread } from "@/lib/format/formatProbability";
 import { formatWindow } from "@/lib/format/formatWindow";
 
 /**
@@ -53,7 +53,7 @@ export function OrderBookPanel() {
         ))}
 
         <div className="book-spread">
-          spread {formatProbability(market.spread)} · mid{" "}
+          spread {formatSpread(market.spread)} · mid{" "}
           {formatProbability(market.upProbability)}
         </div>
 

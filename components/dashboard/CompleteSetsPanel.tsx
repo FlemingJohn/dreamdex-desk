@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import { useWriteActions } from "@/hooks/useWriteActions";
-import { formatProbability } from "@/lib/format/formatProbability";
+import { formatProbability, formatSpread } from "@/lib/format/formatProbability";
 import { formatUsdc } from "@/lib/format/formatUsdc";
 import { formatWindow } from "@/lib/format/formatWindow";
 
@@ -58,7 +58,7 @@ export function CompleteSetsPanel() {
       headerExtra={
         market ? (
           <Badge variant="secondary">
-            spread {formatProbability(market.spread)}
+            spread {formatSpread(market.spread)}
           </Badge>
         ) : null
       }
@@ -79,7 +79,7 @@ export function CompleteSetsPanel() {
               </span>{" "}
               <span className="text-muted-foreground">
                 up {formatProbability(market.upProbability)} · spread{" "}
-                {formatProbability(market.spread)}
+                {formatSpread(market.spread)}
               </span>
             </span>
 

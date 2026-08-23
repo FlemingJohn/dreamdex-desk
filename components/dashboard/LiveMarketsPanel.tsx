@@ -15,7 +15,7 @@ import {
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import { formatCountdown, isClosingSoon } from "@/lib/format/formatCountdown";
 import { formatStrike, formatWindow } from "@/lib/format/formatWindow";
-import { formatProbability } from "@/lib/format/formatProbability";
+import { formatProbability, formatSpread } from "@/lib/format/formatProbability";
 import { formatUsdcCompact } from "@/lib/format/formatUsdc";
 
 /**
@@ -72,7 +72,7 @@ export function LiveMarketsPanel() {
                     {formatProbability(market.upProbability)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
-                    {formatProbability(market.spread)}
+                    {formatSpread(market.spread)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {formatUsdcCompact(market.depthAtTouch)}

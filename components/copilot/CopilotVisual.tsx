@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { useCopilot } from "@/components/copilot/CopilotProvider";
 import { formatCountdown } from "@/lib/format/formatCountdown";
 import { formatPointGap } from "@/lib/format/formatPercent";
-import { formatProbability } from "@/lib/format/formatProbability";
+import { formatProbability, formatSpread } from "@/lib/format/formatProbability";
 import { formatSignedUsdc, formatUsdc } from "@/lib/format/formatUsdc";
 import { formatWindow } from "@/lib/format/formatWindow";
 import type { CopilotVisual as Visual } from "@/types/copilot";
@@ -105,7 +105,7 @@ function MarketsVisual({
             {formatProbability(market.upProbability)}
           </span>
           <span className="visual-note">
-            spread {formatProbability(market.spread)}
+            spread {formatSpread(market.spread)}
           </span>
           <span className="visual-note">{formatCountdown(market.secondsRemaining)}</span>
         </div>
