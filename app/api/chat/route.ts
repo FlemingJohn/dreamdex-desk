@@ -11,7 +11,12 @@ import { COPILOT_SYSTEM_PROMPT } from "@/lib/copilot/systemPrompt";
 import { READ_TOOL_NAMES, copilotTools } from "@/lib/copilot/toolDefinitions";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
 import type { ChatMessage, ToolCallRecord } from "@/types/copilot";
-import { getMockPortfolio } from "@/lib/mock/mockPortfolio";
+
+/**
+ * Sizing assumes this until the desk reads the connected wallet's balance.
+ * The approval card shows the cost, so the trader sees what it would spend.
+ */
+const ASSUMED_BANKROLL_USDC = 500;
 
 /** How many times the model may read data before it has to answer. */
 const MAX_TOOL_ROUNDS = 6;
@@ -86,12 +91,11 @@ export async function POST(request: Request) {
       const toolArguments = JSON.parse(toolCall.function.arguments || "{}");
 
       if (toolName === "proposeTrade") {
-        const portfolio = getMockPortfolio();
-        const proposal = buildTradeProposal({
+        const proposal = await buildTradeProposal({
           marketId: toolArguments.marketId,
           side: toolArguments.side,
           contracts: toolArguments.contracts,
-          availableUsdc: portfolio.realizedUsdcLastWeek + 100,
+          availableUsdc: ASSUMED_BANKROLL_USDC,
         });
 
         toolCallsMade.push({ name: toolName, status: proposal ? "finished" : "failed" });

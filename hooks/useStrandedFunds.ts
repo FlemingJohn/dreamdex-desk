@@ -1,41 +1,19 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
-import {
-  getMockStuckMarkets,
-  getMockVaultFallbacks,
-  sumVaultFallbacks,
-} from "@/lib/mock/mockStuckMarkets";
+import { useCallback, useState } from "react";
+import { useSettlementInfo } from "@/hooks/useSettlementInfo";
 
 /**
- * Money the protocol is holding that nothing else will surface.
+ * Markets that expired without paying out.
  *
- * Two separate problems, both invisible in the app today: markets that finished
- * without paying out because a settlement callback was missed, and payouts that
- * were parked in a pool vault because delivery to a wallet failed.
- *
- * Anyone can unblock the first kind, for anyone. That is worth stating plainly
- * in the interface — it is not a privilege, it is how the protocol avoids ever
- * stranding funds behind someone's permission.
+ * Anyone can unblock these, for anyone — that is deliberate protocol design so
+ * funds are never stranded behind one party's permission. The buttons therefore
+ * work on markets the trader holds no position in.
  */
 export function useStrandedFunds() {
-  const [resolvedIds, setResolvedIds] = useState<string[]>([]);
+  const { stuckMarkets, isLoading, error, refresh } = useSettlementInfo();
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [sweptVault, setSweptVault] = useState(false);
 
-  const allStuck = useMemo(() => getMockStuckMarkets(), []);
-  const stuckMarkets = useMemo(
-    () => allStuck.filter((market) => !resolvedIds.includes(market.marketId)),
-    [allStuck, resolvedIds]
-  );
-
-  const vaultFallbacks = useMemo(
-    () => (sweptVault ? [] : getMockVaultFallbacks()),
-    [sweptVault]
-  );
-  const vaultTotal = useMemo(() => sumVaultFallbacks(vaultFallbacks), [vaultFallbacks]);
-
-  /** Pushes a settled market through, whichever remedy it needs. */
   const unblockMarket = useCallback(
     async (marketId: string, remedy: "pokeOracle" | "voidExpired") => {
       setBusyId(marketId);
@@ -45,31 +23,13 @@ export function useStrandedFunds() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ action: remedy, marketId }),
         });
-        setResolvedIds((current) => [...current, marketId]);
+        await refresh();
       } finally {
         setBusyId(null);
       }
     },
-    []
+    [refresh]
   );
 
-  const sweepVaults = useCallback(async () => {
-    setBusyId("vault");
-    try {
-      await fetch("/api/vault", { method: "POST" });
-      setSweptVault(true);
-    } finally {
-      setBusyId(null);
-    }
-  }, []);
-
-  return {
-    stuckMarkets,
-    vaultFallbacks,
-    vaultTotal,
-    busyId,
-    unblockMarket,
-    sweepVaults,
-    isLoading: false,
-  };
+  return { stuckMarkets, busyId, unblockMarket, isLoading, error };
 }

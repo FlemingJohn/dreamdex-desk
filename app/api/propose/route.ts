@@ -1,7 +1,12 @@
 import { NextResponse } from "next/server";
 import { buildTradeProposal } from "@/lib/copilot/buildTradeProposal";
-import { getMockPortfolio } from "@/lib/mock/mockPortfolio";
 import type { Side } from "@/types/market";
+
+/**
+ * Sizing assumes this until the desk reads the connected wallet's balance.
+ * The approval card shows the cost, so the trader sees what it would spend.
+ */
+const ASSUMED_BANKROLL_USDC = 500;
 
 /**
  * Draws up a trade the trader asked for by pointing rather than typing.
@@ -18,12 +23,11 @@ export async function POST(request: Request) {
     contracts: number;
   };
 
-  const portfolio = getMockPortfolio();
-  const proposal = buildTradeProposal({
+  const proposal = await buildTradeProposal({
     marketId,
     side,
     contracts,
-    availableUsdc: portfolio.realizedUsdcLastWeek + 100,
+    availableUsdc: ASSUMED_BANKROLL_USDC,
   });
 
   if (!proposal) {

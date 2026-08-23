@@ -64,30 +64,23 @@ export interface SettlementQualityRow {
 }
 
 /**
- * One price source the oracle consulted when settling a market.
+ * A settled market and the link to what decided it.
  *
- * The settlement question for every market is public, and the docs say plainly
- * that it is "worth surfacing in any interface you build on top of event
- * contracts". Nothing does. This is the receipt for a result.
+ * The oracle's per-source working — which feeds answered, their values, the
+ * median — is published on its own explorer rather than the indexer, so this
+ * carries the result and the link that proves it. The docs say plainly that the
+ * link is "worth surfacing in any interface you build on top of event
+ * contracts"; nothing does.
  */
-export interface OracleSource {
-  name: string;
-  reportedPrice: number;
-  respondedAt: string;
-  includedInMedian: boolean;
-}
-
 export interface SettlementReceipt {
   marketId: string;
   asset: Asset;
   windowSeconds: WindowSeconds;
   oracleQuestionId: string;
-  /** The line the close was measured against. */
-  openingPrice: number;
-  settlementPrice: number;
-  medianPrice: number;
-  sourcesRequired: number;
-  sources: OracleSource[];
+  /** The line the close was measured against, when the venue sets one. */
+  strike: number | null;
+  /** The market's last published estimate before it settled. */
+  finalProbability: number;
   outcome: "up" | "down" | "voided";
-  settledAt: string;
+  explorerUrl: string | null;
 }

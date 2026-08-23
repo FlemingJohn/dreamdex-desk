@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import { readLiveMarkets, resolveVenueId } from "@/lib/exchange/readMarkets";
 import { readOrderBook, impliedProbability } from "@/lib/exchange/readOrderBook";
-import { getMockMarkets } from "@/lib/mock/mockMarkets";
 import type { DataSource, LiveMarket } from "@/types/market";
 
 export interface MarketsResponse {
@@ -35,10 +34,10 @@ export async function GET() {
 
     if (markets.length === 0) {
       return NextResponse.json({
-        markets: getMockMarkets(Math.floor(Date.now() / 1000)),
-        source: "mock",
+        markets: [],
+        source: "live",
         venueId,
-        note: "No live windows with enough headroom on this venue right now.",
+        note: "No windows on this venue currently have enough time left to trade.",
       } satisfies MarketsResponse);
     }
 
@@ -68,9 +67,13 @@ export async function GET() {
       venueId,
     } satisfies MarketsResponse);
   } catch (error) {
+    /**
+     * No stand-in data. An analytics desk that invents numbers when the chain
+     * is unreachable is worse than one that says it cannot see.
+     */
     return NextResponse.json({
-      markets: getMockMarkets(Math.floor(Date.now() / 1000)),
-      source: "mock",
+      markets: [],
+      source: "live",
       venueId: null,
       note: `Could not reach the indexer: ${(error as Error).message.slice(0, 120)}`,
     } satisfies MarketsResponse);

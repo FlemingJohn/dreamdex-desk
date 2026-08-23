@@ -1,45 +1,54 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useSyncExternalStore } from "react";
+import { createPollingStore } from "@/lib/createPollingStore";
 import type { BookResponse } from "@/app/api/book/route";
-import type { OrderBook } from "@/types/market";
 
-const EMPTY: OrderBook = { marketId: "", bids: [], asks: [] };
+const EMPTY: BookResponse = {
+  book: { marketId: "", bids: [], asks: [] },
+  bestBid: null,
+  bestAsk: null,
+  spread: 0,
+};
 
-/** The resting book for one market, quoted in Up terms. */
+const bookStore = createPollingStore<BookResponse>({
+  url: null,
+  intervalMs: 10_000,
+  empty: EMPTY,
+});
+
+/**
+ * The resting book for one market, quoted in Up terms.
+ *
+ * Polled faster than the market list because depth at the touch is the figure
+ * that moves most — a spread read a minute ago is not worth acting on.
+ */
 export function useOrderBook(marketId: string | null, poolAddress: string | null) {
-  const [book, setBook] = useState<OrderBook>(EMPTY);
-  const [isLoading, setIsLoading] = useState(true);
-
-  const refresh = useCallback(async () => {
-    if (!marketId || !poolAddress) {
-      setBook(EMPTY);
-      setIsLoading(false);
-      return;
-    }
-    try {
-      const response = await fetch(
-        `/api/book?marketId=${marketId}&pool=${poolAddress}`
-      );
-      const payload = (await response.json()) as BookResponse;
-      setBook(payload.book);
-    } catch {
-      setBook(EMPTY);
-    } finally {
-      setIsLoading(false);
-    }
+  useEffect(() => {
+    bookStore.setUrl(
+      marketId && poolAddress
+        ? `/api/book?marketId=${marketId}&pool=${poolAddress}`
+        : null
+    );
   }, [marketId, poolAddress]);
 
-  useEffect(() => {
-    void refresh();
-    const timer = setInterval(() => void refresh(), 10_000);
-    return () => clearInterval(timer);
-  }, [refresh]);
+  const data = useSyncExternalStore(
+    bookStore.subscribe,
+    bookStore.read,
+    bookStore.readServer
+  );
 
   const deepestLevel = useMemo(() => {
-    const sizes = [...book.bids, ...book.asks].map((level) => level.contracts);
+    const sizes = [...data.book.bids, ...data.book.asks].map((level) => level.contracts);
     return sizes.length > 0 ? Math.max(...sizes) : 1;
-  }, [book]);
+  }, [data.book]);
 
-  return { book, deepestLevel, isLoading };
+  return {
+    book: data.book,
+    bestBid: data.bestBid,
+    bestAsk: data.bestAsk,
+    spread: data.spread,
+    deepestLevel,
+    isLoading: data.book.bids.length === 0 && data.book.asks.length === 0,
+  };
 }

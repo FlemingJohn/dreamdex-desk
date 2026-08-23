@@ -1,25 +1,38 @@
 import { NextResponse } from "next/server";
-import { getMockPortfolio, sumUnclaimedWinnings } from "@/lib/mock/mockPortfolio";
+import { isAddress } from "viem";
+import { readUnclaimedWinnings } from "@/lib/exchange/readWallet";
 
 /**
- * Redeems every settled market that still owes the trader money.
+ * Reports what the protocol owes the wallet, ready to redeem.
  *
- * Claiming does not need the approval card a trade does. A trade can lose you
- * money; a claim can only ever pay you, so the worst case is wasted gas. A
- * plain confirmation is the proportionate guard.
+ * A winning position pays only when someone redeems it, and settled markets
+ * drop out of the ordinary market list — so this money is invisible unless
+ * something goes looking for it, which is what this does.
  *
- * Wiring this up means sweeping markets with the "Finalized" status and
- * redeeming each with an explicit outcome index — the ordinary market list
- * cannot see settled markets at all, which is exactly why this money goes
- * unnoticed.
+ * Signing happens in the browser, because that is where the wallet is. This
+ * route finds the claims and hands them back; it never holds a key.
  */
-export async function POST() {
-  const portfolio = getMockPortfolio();
-  const claimed = sumUnclaimedWinnings(portfolio);
+export async function POST(request: Request) {
+  const { address } = (await request.json()) as { address?: string };
 
-  return NextResponse.json({
-    claimedUsdc: claimed,
-    marketsSwept: portfolio.unclaimedWinnings.length,
-    transactionHash: `0xclaim${Date.now().toString(16).slice(-6)}`,
-  });
+  if (!address || !isAddress(address)) {
+    return NextResponse.json(
+      { error: "Connect a wallet before claiming." },
+      { status: 400 }
+    );
+  }
+
+  try {
+    const claims = await readUnclaimedWinnings(address);
+    return NextResponse.json({
+      claims,
+      claimableUsdc: claims.reduce((total, claim) => total + claim.amountUsdc, 0),
+      marketsFound: claims.length,
+    });
+  } catch (error) {
+    return NextResponse.json(
+      { error: (error as Error).message.slice(0, 160) },
+      { status: 500 }
+    );
+  }
 }

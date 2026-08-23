@@ -3,97 +3,111 @@
 import { ExternalLink } from "lucide-react";
 import { PanelShell } from "@/components/dashboard/PanelShell";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { useSettlementReceipts } from "@/hooks/useSettlementReceipts";
-import { buildOracleExplorerUrl } from "@/lib/mock/mockSettlementReceipt";
-import { formatWindow } from "@/lib/format/formatWindow";
+import { formatProbability } from "@/lib/format/formatProbability";
+import { formatStrike, formatWindow } from "@/lib/format/formatWindow";
 
 /**
- * Why did that market resolve the way it did?
+ * How recent markets resolved, and the proof behind each one.
  *
- * Each settled market carries an oracle question id, and behind it sits every
- * price source consulted, what each returned, the median across them, and how
- * many had to agree. Nothing else shows this — so a losing trade is normally
- * something you take on faith. Here it is a receipt you can open.
+ * Every settled market carries an oracle question id, and behind it sits the
+ * whole pipeline — each price source, what it returned, the median across them,
+ * and how many had to agree. The docs say outright that this is "worth surfacing
+ * in any interface you build on top of event contracts". Nothing does, so a
+ * losing trade is normally something you take on faith. Here it is a link.
+ *
+ * The final price next to the outcome is the interesting pair: a market that
+ * settled UP after last trading at 0.30 was wrong right up to the end.
  */
 export function SettlementReceiptPanel() {
-  const { receipts } = useSettlementReceipts();
+  const { receipts, isLoading } = useSettlementReceipts();
 
   return (
     <PanelShell
       id="settlement-receipts"
       title="Settlement receipts"
-      description="Why each market resolved the way it did — every source the oracle asked."
+      description="How each market resolved, with the oracle's own working one click away."
       askQuestion="Why did the most recent markets resolve the way they did?"
     >
-      <div className="flex flex-col gap-4">
-        {receipts.map((receipt, index) => {
-          const respondedSources = receipt.sources.filter(
-            (source) => source.includedInMedian
-          );
-
-          return (
-            <div key={receipt.marketId}>
-              {index > 0 ? <Separator className="mb-4" /> : null}
-
-              <div className="panel-metric-row mb-2">
-                <span className="text-sm">
-                  <span className="font-medium">
+      {isLoading ? (
+        <Skeleton className="h-40 w-full" />
+      ) : receipts.length === 0 ? (
+        <p className="panel-note">No settled markets to show on this venue yet.</p>
+      ) : (
+        <>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Market</TableHead>
+                <TableHead>Line</TableHead>
+                <TableHead className="text-right">Final price</TableHead>
+                <TableHead className="text-right">Result</TableHead>
+                <TableHead className="text-right">Proof</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {receipts.map((receipt) => (
+                <TableRow key={receipt.marketId}>
+                  <TableCell className="font-medium">
                     {receipt.asset} {formatWindow(receipt.windowSeconds)}
-                  </span>{" "}
-                  <span className="text-muted-foreground">
-                    opened {receipt.openingPrice.toLocaleString()} · closed{" "}
-                    {receipt.settlementPrice.toLocaleString()}
-                  </span>
-                </span>
-
-                <span className="flex items-center gap-2">
-                  <Badge
-                    variant={receipt.outcome === "voided" ? "destructive" : "secondary"}
-                    className={receipt.outcome === "up" ? "side-up" : "side-down"}
-                  >
-                    {receipt.outcome.toUpperCase()}
-                  </Badge>
-                  <a
-                    className="text-xs inline-flex items-center gap-1 underline underline-offset-2"
-                    href={buildOracleExplorerUrl(receipt.oracleQuestionId)}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    question {receipt.oracleQuestionId}
-                    <ExternalLink className="size-3" />
-                  </a>
-                </span>
-              </div>
-
-              <div className="receipt-sources">
-                {receipt.sources.map((source) => (
-                  <div className="receipt-source" key={source.name}>
-                    <span
+                  </TableCell>
+                  <TableCell className="tabular-nums text-muted-foreground">
+                    {formatStrike(receipt.strike)}
+                  </TableCell>
+                  <TableCell className="text-right tabular-nums">
+                    {formatProbability(receipt.finalProbability)}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Badge
+                      variant={receipt.outcome === "voided" ? "destructive" : "secondary"}
                       className={
-                        source.includedInMedian ? "" : "text-muted-foreground line-through"
+                        receipt.outcome === "up"
+                          ? "side-up"
+                          : receipt.outcome === "down"
+                            ? "side-down"
+                            : undefined
                       }
                     >
-                      {source.name}
-                    </span>
-                    <span className="tabular-nums">
-                      {source.includedInMedian
-                        ? source.reportedPrice.toLocaleString()
-                        : "no answer"}
-                    </span>
-                  </div>
-                ))}
-              </div>
+                      {receipt.outcome.toUpperCase()}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    {receipt.explorerUrl ? (
+                      <a
+                        className="inline-flex items-center gap-1 text-xs underline underline-offset-2"
+                        href={receipt.explorerUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        sources
+                        <ExternalLink className="size-3" />
+                      </a>
+                    ) : (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
 
-              <p className="panel-note mt-2">
-                median {receipt.medianPrice.toLocaleString()} from{" "}
-                {respondedSources.length} of {receipt.sources.length} sources ·{" "}
-                {receipt.sourcesRequired} needed to agree
-              </p>
-            </div>
-          );
-        })}
-      </div>
+          <p className="panel-note mt-3">
+            Each link opens the oracle&apos;s record for that market: every price source
+            it asked, the value each returned, the median across them, and how many had
+            to agree. A void means it could not get a reliable answer, so both sides
+            refunded at 0.5.
+          </p>
+        </>
+      )}
     </PanelShell>
   );
 }

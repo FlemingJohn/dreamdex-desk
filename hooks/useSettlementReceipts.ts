@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
-import { getMockSettlementReceipts } from "@/lib/mock/mockSettlementReceipt";
+import { useSettlementInfo } from "@/hooks/useSettlementInfo";
 
-/** The most recently settled markets, with the oracle's working attached. */
+/** Recently settled markets, with the link to what decided each one. */
 export function useSettlementReceipts() {
-  const receipts = useMemo(() => getMockSettlementReceipts(), []);
-  return { receipts, isLoading: false };
+  const { receipts, isLoading, error } = useSettlementInfo();
+  return { receipts, isLoading, error };
 }

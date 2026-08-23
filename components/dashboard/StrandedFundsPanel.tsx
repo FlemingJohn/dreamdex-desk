@@ -4,9 +4,8 @@ import { ExternalLink } from "lucide-react";
 import { PanelShell } from "@/components/dashboard/PanelShell";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { useStrandedFunds } from "@/hooks/useStrandedFunds";
-import { buildOracleExplorerUrl } from "@/lib/mock/mockSettlementReceipt";
+import { buildOracleExplorerUrl } from "@/lib/exchange/readSettlement";
 import { formatUsdc } from "@/lib/format/formatUsdc";
 import { formatWindow } from "@/lib/format/formatWindow";
 
@@ -33,11 +32,10 @@ function describeAge(seconds: number): string {
  * meant to be kept honest.
  */
 export function StrandedFundsPanel() {
-  const { stuckMarkets, vaultFallbacks, vaultTotal, busyId, unblockMarket, sweepVaults } =
-    useStrandedFunds();
+  const { stuckMarkets, busyId, unblockMarket } = useStrandedFunds();
 
   const lockedTotal = stuckMarkets.reduce((total, market) => total + market.lockedUsdc, 0);
-  const hasNothingToDo = stuckMarkets.length === 0 && vaultFallbacks.length === 0;
+  const hasNothingToDo = stuckMarkets.length === 0;
 
   return (
     <PanelShell
@@ -48,15 +46,15 @@ export function StrandedFundsPanel() {
         hasNothingToDo ? (
           <Badge variant="secondary">all clear</Badge>
         ) : (
-          <Badge variant="destructive">{formatUsdc(lockedTotal + vaultTotal)} stuck</Badge>
+          <Badge variant="destructive">{formatUsdc(lockedTotal)} locked</Badge>
         )
       }
       askQuestion="Is any money stuck right now, and what unblocks it?"
     >
       {hasNothingToDo ? (
         <p className="panel-note">
-          Nothing waiting. Every settled market has paid out and no vault is holding a
-          failed delivery.
+          Nothing waiting. Every expired market on this venue has settled — which is
+          what should happen, since resolution is delivered automatically.
         </p>
       ) : (
         <div className="flex flex-col gap-4">
@@ -105,28 +103,6 @@ export function StrandedFundsPanel() {
             </div>
           ))}
 
-          {vaultFallbacks.length > 0 ? (
-            <>
-              <Separator />
-              <div className="panel-metric-row">
-                <span className="text-sm">
-                  <span className="font-medium">{formatUsdc(vaultTotal)}</span>{" "}
-                  <span className="text-muted-foreground">
-                    parked across {vaultFallbacks.length} pool
-                    {vaultFallbacks.length === 1 ? "" : "s"} after a payout could not reach
-                    your wallet
-                  </span>
-                </span>
-                <Button
-                  size="sm"
-                  disabled={busyId === "vault"}
-                  onClick={sweepVaults}
-                >
-                  Withdraw
-                </Button>
-              </div>
-            </>
-          ) : null}
         </div>
       )}
     </PanelShell>
