@@ -34,7 +34,6 @@ export function LiveMarketsPanel() {
       description="Every open window. The line is each window's own opening price — there are no strikes."
       headerExtra={<Badge variant="secondary">{tradingMarkets.length} open</Badge>}
       askQuestion="Which of the open markets looks most mispriced right now?"
-      className="panel-grid-wide"
     >
       {isLoading ? (
         <Skeleton className="h-40 w-full" />

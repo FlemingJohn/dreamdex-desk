@@ -28,7 +28,6 @@ export function PortfolioPanel() {
       id="portfolio"
       title="Your book"
       description="Open positions, realised performance, and winnings the protocol still owes you."
-      className="panel-grid-wide"
       askQuestion="Walk me through my open positions and anything I have not claimed."
     >
       {isLoading || !portfolio ? (

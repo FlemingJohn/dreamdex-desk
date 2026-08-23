@@ -24,7 +24,6 @@ export function SettlementReceiptPanel() {
       title="Settlement receipts"
       description="Why each market resolved the way it did — every source the oracle asked."
       askQuestion="Why did the most recent markets resolve the way they did?"
-      className="panel-grid-wide"
     >
       <div className="flex flex-col gap-4">
         {receipts.map((receipt, index) => {
