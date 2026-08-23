@@ -1,5 +1,6 @@
 "use client";
 
+import { CopilotLauncher } from "@/components/copilot/CopilotLauncher";
 import { CopilotPanel } from "@/components/copilot/CopilotPanel";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { CalibrationPanel } from "@/components/dashboard/CalibrationPanel";
@@ -9,56 +10,36 @@ import { PortfolioPanel } from "@/components/dashboard/PortfolioPanel";
 import { ProbabilityPathPanel } from "@/components/dashboard/ProbabilityPathPanel";
 import { SettlementQualityPanel } from "@/components/dashboard/SettlementQualityPanel";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import {
-  ResizableHandle,
-  ResizablePanel,
-  ResizablePanelGroup,
-} from "@/components/ui/resizable";
 import { useCopilotPanel } from "@/hooks/useCopilotPanel";
 
 /**
- * The dashboard shell — analytics on the left, copilot on the right, with a
- * draggable divider between them.
+ * The dashboard shell.
  *
- * The copilot gets real estate rather than a floating bubble because it is half
- * the product, not a help widget. Hiding it hands the full width back to the
- * panels.
+ * Panels always get the full width. The copilot floats above them from a
+ * launcher in the corner rather than splitting the screen, so asking a question
+ * never shrinks the data you are asking about.
  */
 export function DashboardLayout() {
-  const { isOpen, toggle, defaultWidthPercent } = useCopilotPanel();
-
-  const panels = (
-    <ScrollArea className="h-full">
-      <div className="panel-grid">
-        <LiveMarketsPanel />
-        <CalibrationPanel />
-        <ProbabilityPathPanel />
-        <LiquidityPanel />
-        <SettlementQualityPanel />
-        <PortfolioPanel />
-      </div>
-    </ScrollArea>
-  );
+  const { isOpen, open, close } = useCopilotPanel();
 
   return (
     <div className="dashboard-shell">
-      <DashboardHeader isCopilotOpen={isOpen} onOpenCopilot={toggle} />
+      <DashboardHeader />
 
       <div className="dashboard-body">
-        {isOpen ? (
-          <ResizablePanelGroup orientation="horizontal">
-            <ResizablePanel defaultSize={String(100 - defaultWidthPercent)} minSize="40">
-              {panels}
-            </ResizablePanel>
-            <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={String(defaultWidthPercent)} minSize="20" maxSize="45">
-              <CopilotPanel onClose={toggle} />
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        ) : (
-          panels
-        )}
+        <ScrollArea className="h-full">
+          <div className="panel-grid">
+            <LiveMarketsPanel />
+            <CalibrationPanel />
+            <ProbabilityPathPanel />
+            <LiquidityPanel />
+            <SettlementQualityPanel />
+            <PortfolioPanel />
+          </div>
+        </ScrollArea>
       </div>
+
+      {isOpen ? <CopilotPanel onClose={close} /> : <CopilotLauncher onOpen={open} />}
     </div>
   );
 }
