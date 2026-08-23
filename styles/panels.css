@@ -227,3 +227,15 @@
   color: var(--muted-foreground);
   border-block: 1px solid var(--border);
 }
+
+/* A calibration band you can act on. */
+
+.calibration-row-tradeable {
+  cursor: pointer;
+  border-radius: 0.25rem;
+  transition: background-color 0.12s ease;
+}
+
+.calibration-row-tradeable:hover {
+  background: var(--muted);
+}
