@@ -50,20 +50,36 @@
   min-height: 0;
 }
 
+/*
+ * Pages stack their panels down the page and each one takes the full width.
+ *
+ * A fixed two-column grid was wrong once the desk split into pages: with one
+ * or three panels there is always a stranded half-row of dead space, and the
+ * widest content here — an eight-column market table, a settlement receipt —
+ * wants the whole width anyway.
+ */
 .panel-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem;
+  min-width: 0;
+}
+
+/*
+ * Two panels that genuinely belong side by side. Used where the pair is read
+ * together rather than in sequence, and it drops to a stack when there is no
+ * room for both.
+ */
+.panel-pair {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 1rem;
-  padding: 1.25rem;
-  align-content: start;
+  min-width: 0;
 }
 
 @media (max-width: 1100px) {
-  .panel-grid {
+  .panel-pair {
     grid-template-columns: minmax(0, 1fr);
   }
-}
-
-.panel-grid-wide {
-  grid-column: 1 / -1;
 }
