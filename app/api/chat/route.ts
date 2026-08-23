@@ -6,6 +6,7 @@ import type {
 import { createAzureClient, getDeploymentName } from "@/lib/copilot/azureClient";
 import { buildTradeProposal } from "@/lib/copilot/buildTradeProposal";
 import { runReadTool, summarizeReadResult } from "@/lib/copilot/runReadTool";
+import { isSafeWriteTool, runWriteTool } from "@/lib/copilot/runWriteTool";
 import { COPILOT_SYSTEM_PROMPT } from "@/lib/copilot/systemPrompt";
 import { READ_TOOL_NAMES, copilotTools } from "@/lib/copilot/toolDefinitions";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
@@ -13,7 +14,7 @@ import type { ChatMessage, ToolCallRecord } from "@/types/copilot";
 import { getMockPortfolio } from "@/lib/mock/mockPortfolio";
 
 /** How many times the model may read data before it has to answer. */
-const MAX_TOOL_ROUNDS = 4;
+const MAX_TOOL_ROUNDS = 6;
 
 function isReadTool(name: string): name is ReadToolName {
   return (READ_TOOL_NAMES as readonly string[]).includes(name);
@@ -104,6 +105,24 @@ export async function POST(request: Request) {
           proposal: proposal ?? undefined,
           proposalOutcome: proposal ? "pending" : undefined,
         } satisfies Partial<ChatMessage>);
+      }
+
+      if (isSafeWriteTool(toolName)) {
+        const outcome = runWriteTool(
+          toolName as Parameters<typeof runWriteTool>[0],
+          toolArguments
+        );
+        toolCallsMade.push({
+          name: toolName,
+          status: "finished",
+          summary: outcome.summary,
+        });
+        conversation.push({
+          role: "tool",
+          tool_call_id: toolCall.id,
+          content: JSON.stringify(outcome.detail),
+        });
+        continue;
       }
 
       if (isReadTool(toolName)) {
