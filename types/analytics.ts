@@ -65,3 +65,32 @@ export interface SettlementQualityRow {
   totalSources: number;
   medianLatencySeconds: number;
 }
+
+/**
+ * One price source the oracle consulted when settling a market.
+ *
+ * The settlement question for every market is public, and the docs say plainly
+ * that it is "worth surfacing in any interface you build on top of event
+ * contracts". Nothing does. This is the receipt for a result.
+ */
+export interface OracleSource {
+  name: string;
+  reportedPrice: number;
+  respondedAt: string;
+  includedInMedian: boolean;
+}
+
+export interface SettlementReceipt {
+  marketId: string;
+  asset: Asset;
+  windowLength: WindowLength;
+  oracleQuestionId: string;
+  /** The line the close was measured against. */
+  openingPrice: number;
+  settlementPrice: number;
+  medianPrice: number;
+  sourcesRequired: number;
+  sources: OracleSource[];
+  outcome: "up" | "down" | "voided";
+  settledAt: string;
+}
