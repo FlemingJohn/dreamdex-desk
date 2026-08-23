@@ -6,6 +6,12 @@ import { getMockProbabilityPath } from "@/lib/mock/mockProbabilityPath";
 import { getMockSettlementQuality } from "@/lib/mock/mockSettlementQuality";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
 
+/** These run on the server, where reading the clock directly is safe. */
+function currentSecond(): number {
+  return Math.floor(Date.now() / 1000);
+}
+
+
 /**
  * Runs one read tool and hands the result back to the model.
  *
@@ -16,7 +22,9 @@ import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
 export function runReadTool(name: ReadToolName): unknown {
   switch (name) {
     case "listMarkets":
-      return getMockMarkets().filter((market) => market.status === "trading");
+      return getMockMarkets(currentSecond()).filter(
+        (market) => market.status === "trading"
+      );
 
     case "getCalibration":
       return getMockCalibration();
