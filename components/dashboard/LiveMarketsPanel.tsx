@@ -1,6 +1,7 @@
 "use client";
 
 import { PanelShell } from "@/components/dashboard/PanelShell";
+import { TradeButtons } from "@/components/dashboard/TradeButtons";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -31,6 +32,7 @@ export function LiveMarketsPanel() {
       title="Live markets"
       description="Every open window. The line is each window's own opening price — there are no strikes."
       headerExtra={<Badge variant="secondary">{tradingMarkets.length} open</Badge>}
+      askQuestion="Which of the open markets looks most mispriced right now?"
       className="panel-grid-wide"
     >
       {isLoading ? (
@@ -47,6 +49,7 @@ export function LiveMarketsPanel() {
               <TableHead className="text-right">Depth</TableHead>
               <TableHead className="text-right">Volume</TableHead>
               <TableHead className="text-right">Left</TableHead>
+              <TableHead className="text-right">Trade</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -87,6 +90,9 @@ export function LiveMarketsPanel() {
                     ) : (
                       formatCountdown(market.secondsRemaining)
                     )}
+                  </TableCell>
+                  <TableCell>
+                    <TradeButtons market={market} />
                   </TableCell>
                 </TableRow>
               );
