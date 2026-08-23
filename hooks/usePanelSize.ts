@@ -7,8 +7,14 @@ interface PanelSize {
   height: number;
 }
 
-const SMALLEST = { width: 320, height: 280 };
-const DEFAULT = { width: 416, height: 608 };
+const SMALLEST = { width: 340, height: 320 };
+
+/**
+ * Roomy enough to read a full answer and an approval card without scrolling,
+ * which is what the copilot is usually doing. Shrinking it is a deliberate act
+ * — it should not open already cramped.
+ */
+const DEFAULT = { width: 560, height: 760 };
 
 function clamp(value: number, lowest: number, highest: number): number {
   return Math.min(Math.max(value, lowest), highest);
