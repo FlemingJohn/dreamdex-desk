@@ -75,6 +75,13 @@ export function ApprovalCard({
         </div>
 
         {isPending ? (
+          <p className="approval-first-trade">
+            The first trade on a market signs twice — once to let the pool hold
+            your collateral, then the order itself. After that it is one.
+          </p>
+        ) : null}
+
+        {isPending ? (
           <div className="approval-actions">
             <Button variant="outline" size="sm" onClick={onReject}>
               Reject

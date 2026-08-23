@@ -74,6 +74,16 @@ export function useWriteActions() {
         const expiresAt =
           BigInt(Math.floor(Date.now() / 1000) + 300) * 1_000_000_000n;
 
+        /**
+         * The SDK approves the collateral to the pool first when the allowance
+         * is short, which it always is on a fresh wallet. That means the first
+         * trade on a given pool raises TWO prompts — an approval, then the
+         * order. Later trades on the same pool raise one.
+         *
+         * Without the approval the order reverts ERC20InsufficientAllowance,
+         * because the pool cannot pull the collateral it is meant to escrow.
+         */
+
         const result = await exchange!.trader.placeOrder({
           pool: poolAddress as `0x${string}`,
           side: proposal.side === "up" ? "BUY_YES" : "BUY_NO",
