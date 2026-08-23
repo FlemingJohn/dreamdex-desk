@@ -14,12 +14,15 @@
   --grid-line: color-mix(in srgb, var(--foreground) 8%, transparent);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --side-up: #5fd3c4;
-    --side-down: #e8815a;
-    --signal-warning: #e8a05a;
-  }
+/*
+ * Follows shadcn's `dark` class rather than the OS media query, so these move
+ * with the theme toggle instead of drifting out of step with the rest of the
+ * palette.
+ */
+.dark {
+  --side-up: #5fd3c4;
+  --side-down: #e8815a;
+  --signal-warning: #e8a05a;
 }
 
 .dashboard-shell {
