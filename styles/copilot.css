@@ -253,7 +253,11 @@
   cursor: grabbing;
 }
 
-/* Buttons in the header stay clickable rather than starting a drag. */
+/*
+ * Buttons in the header keep their own cursor. They are excluded from dragging
+ * in useDraggablePanel, which has to happen in JavaScript — the drag captures
+ * the pointer, and CSS cannot stop that from swallowing a button's click.
+ */
 .copilot-header-draggable button {
   cursor: pointer;
 }
