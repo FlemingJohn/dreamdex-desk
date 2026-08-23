@@ -1,6 +1,6 @@
 "use client";
 
-import { PanelRightClose } from "lucide-react";
+import { X } from "lucide-react";
 import { MessageInput } from "@/components/copilot/MessageInput";
 import { MessageList } from "@/components/copilot/MessageList";
 import { Badge } from "@/components/ui/badge";
@@ -18,11 +18,11 @@ interface CopilotPanelProps {
 }
 
 /**
- * The copilot, as a side panel rather than a floating bubble.
+ * The copilot, floating over the dashboard from its launcher.
  *
- * It sits beside the data it talks about, so a claim like "windows priced this
- * high resolve up far less often" can be checked against the calibration panel
- * without leaving the screen.
+ * It sits on top of the data it talks about rather than beside it, so a claim
+ * like "windows priced this high resolve up far less often" can still be
+ * checked against the calibration panel — close the copilot and it is there.
  */
 export function CopilotPanel({ onClose }: CopilotPanelProps) {
   const { messages, isThinking, sendMessage, approveProposal, rejectProposal } =
@@ -36,7 +36,7 @@ export function CopilotPanel({ onClose }: CopilotPanelProps) {
           <Badge variant="secondary">approval required</Badge>
         </div>
         <Button variant="ghost" size="icon" onClick={onClose} aria-label="Hide copilot">
-          <PanelRightClose className="size-4" />
+          <X className="size-4" />
         </Button>
       </div>
 
