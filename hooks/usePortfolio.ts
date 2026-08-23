@@ -1,16 +1,23 @@
 "use client";
 
 import { useMemo } from "react";
-import { getMockPortfolio, sumUnclaimedWinnings } from "@/lib/mock/mockPortfolio";
+import { useWallet } from "@/hooks/useWallet";
+import type { PortfolioSummary } from "@/types/portfolio";
+
+function sumUnclaimed(portfolio: PortfolioSummary | null): number {
+  if (!portfolio) {
+    return 0;
+  }
+  return portfolio.unclaimedWinnings.reduce((total, entry) => total + entry.amountUsdc, 0);
+}
 
 /**
- * The trader's positions, realised performance, and anything the protocol owes
- * them. Claiming stays an explicit action because redeeming is a real
- * transaction, not a read.
+ * The connected wallet's book. Claiming stays an explicit action because
+ * redeeming is a transaction, not a read.
  */
 export function usePortfolio() {
-  const portfolio = useMemo(() => getMockPortfolio(), []);
-  const unclaimedTotal = useMemo(() => sumUnclaimedWinnings(portfolio), [portfolio]);
+  const { portfolio, isConnected, isLoading, error, refresh } = useWallet();
+  const unclaimedTotal = useMemo(() => sumUnclaimed(portfolio), [portfolio]);
 
-  return { portfolio, isLoading: false, unclaimedTotal };
+  return { portfolio, isConnected, unclaimedTotal, isLoading, error, refresh };
 }
