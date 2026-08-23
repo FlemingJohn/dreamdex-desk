@@ -8,6 +8,7 @@ import { readLiveMarkets, readSettledMarkets } from "@/lib/exchange/readMarkets"
 import { readStuckMarkets } from "@/lib/exchange/readSettlement";
 import { readPortfolio, readWorkingOrders } from "@/lib/exchange/readWallet";
 import { readOrderBook } from "@/lib/exchange/readOrderBook";
+import { readCollateralBalance } from "@/lib/exchange/readBalance";
 import { computeBothSides } from "@/lib/analytics/computeExpectedValue";
 import { computePositionSize } from "@/lib/analytics/computePositionSize";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
@@ -19,8 +20,6 @@ import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
  * anything — they only look.
  */
 
-/** Stand-in until the desk reads a real balance for the connected wallet. */
-const ASSUMED_BANKROLL_USDC = 500;
 
 export async function runReadTool(
   name: ReadToolName,
@@ -91,9 +90,10 @@ export async function runReadTool(
        * The same arithmetic the edge panel runs: price every open market against
        * the calibration curve, keep the better side, and size it.
        */
-      const [markets, buckets] = await Promise.all([
+      const [markets, buckets, bankrollUsdc] = await Promise.all([
         readLiveMarkets(12),
         readCalibration(),
+        readCollateralBalance(address),
       ]);
 
       return markets.map((market) => {
@@ -121,7 +121,7 @@ export async function runReadTool(
           recommendedStake: computePositionSize(
             better.assessment.pricePaid,
             better.assessment.trueProbability,
-            ASSUMED_BANKROLL_USDC
+            bankrollUsdc
           ),
         };
       });

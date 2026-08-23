@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useCalibration } from "@/hooks/useCalibration";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
+import { useFundingStatus } from "@/hooks/useFundingStatus";
 import { computeBothSides } from "@/lib/analytics/computeExpectedValue";
 import { computePositionSize } from "@/lib/analytics/computePositionSize";
 import { formatPercent } from "@/lib/format/formatPercent";
@@ -15,8 +16,6 @@ import { formatWindow } from "@/lib/format/formatWindow";
 import { formatProbability } from "@/lib/format/formatProbability";
 import { formatSignedUsdc, formatUsdc } from "@/lib/format/formatUsdc";
 
-/** Stand-in until the app reads a real balance. */
-const BANKROLL_USDC = 500;
 
 /**
  * What every open market is actually worth, and what to stake.
@@ -31,6 +30,14 @@ export function EdgePanel() {
   const { buckets } = useCalibration();
   const { tradingMarkets } = useLiveMarkets();
   const { proposeTrade } = useCopilot();
+  const { collateralAmount, isConnected } = useFundingStatus();
+
+  /**
+   * Sizing needs a bankroll. With a wallet connected that is the real balance;
+   * without one it falls back to a modest figure so the panel still shows
+   * plausible stakes to someone evaluating the desk before connecting.
+   */
+  const bankrollUsdc = isConnected && collateralAmount > 0 ? collateralAmount : 500;
 
   /**
    * Only the better side of each market is worth showing. Up and Down sum to
@@ -53,7 +60,7 @@ export function EdgePanel() {
         const size = computePositionSize(
           best.assessment.pricePaid,
           best.assessment.trueProbability,
-          BANKROLL_USDC
+          bankrollUsdc
         );
 
         return { market, side: best.side, assessment: best.assessment, size };
@@ -63,7 +70,7 @@ export function EdgePanel() {
         (a, b) =>
           b.assessment.expectedValuePerContract - a.assessment.expectedValuePerContract
       );
-  }, [buckets, tradingMarkets]);
+  }, [bankrollUsdc, buckets, tradingMarkets]);
 
   const worthTaking = opportunities.filter(
     (entry) => entry.assessment.verdict === "buy" && entry.size.contracts > 0

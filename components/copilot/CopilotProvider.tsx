@@ -8,6 +8,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { useAccount } from "wagmi";
 import { useCopilotChat } from "@/hooks/useCopilotChat";
 import { useCopilotPanel } from "@/hooks/useCopilotPanel";
 import { useDraggablePanel } from "@/hooks/useDraggablePanel";
@@ -60,6 +61,7 @@ const BREATHING_ROOM = 20;
  * for the same approval — there is only ever one gate.
  */
 export function CopilotProvider({ children }: { children: ReactNode }) {
+  const { address } = useAccount();
   const { isOpen, open, close } = useCopilotPanel();
   const [isMinimized, setIsMinimized] = useState(false);
   const drag = useDraggablePanel();
@@ -93,7 +95,7 @@ export function CopilotProvider({ children }: { children: ReactNode }) {
         const response = await fetch("/api/propose", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ marketId, side, contracts }),
+          body: JSON.stringify({ marketId, side, contracts, address }),
         });
 
         if (!response.ok) {
@@ -107,7 +109,7 @@ export function CopilotProvider({ children }: { children: ReactNode }) {
         addNote("I could not draw up that trade. Nothing was sent.");
       }
     },
-    [addNote, addProposal, open]
+    [addNote, addProposal, address, open]
   );
 
   const askAbout = useCallback(

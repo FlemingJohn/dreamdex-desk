@@ -9,16 +9,12 @@ import { runReadTool, summarizeReadResult } from "@/lib/copilot/runReadTool";
 import { isSafeWriteTool, runWriteTool } from "@/lib/copilot/runWriteTool";
 import { COPILOT_SYSTEM_PROMPT } from "@/lib/copilot/systemPrompt";
 import { buildVisual } from "@/lib/copilot/buildVisual";
+import { readCollateralBalance } from "@/lib/exchange/readBalance";
 import { OFF_TOPIC_REPLY, isClearlyOffTopic } from "@/lib/copilot/isOnTopic";
 import { READ_TOOL_NAMES, copilotTools } from "@/lib/copilot/toolDefinitions";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
 import type { ChatMessage, CopilotVisual, ToolCallRecord } from "@/types/copilot";
 
-/**
- * Sizing assumes this until the desk reads the connected wallet's balance.
- * The approval card shows the cost, so the trader sees what it would spend.
- */
-const ASSUMED_BANKROLL_USDC = 500;
 
 /** How many times the model may read data before it has to answer. */
 const MAX_TOOL_ROUNDS = 6;
@@ -126,7 +122,7 @@ export async function POST(request: Request) {
           marketId: toolArguments.marketId,
           side: toolArguments.side,
           contracts: toolArguments.contracts,
-          availableUsdc: ASSUMED_BANKROLL_USDC,
+          availableUsdc: await readCollateralBalance(address),
         });
 
         toolCallsMade.push({

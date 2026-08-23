@@ -1,12 +1,8 @@
 import { NextResponse } from "next/server";
 import { buildTradeProposal } from "@/lib/copilot/buildTradeProposal";
+import { readCollateralBalance } from "@/lib/exchange/readBalance";
 import type { Side } from "@/types/market";
 
-/**
- * Sizing assumes this until the desk reads the connected wallet's balance.
- * The approval card shows the cost, so the trader sees what it would spend.
- */
-const ASSUMED_BANKROLL_USDC = 500;
 
 /**
  * Draws up a trade the trader asked for by pointing rather than typing.
@@ -17,17 +13,19 @@ const ASSUMED_BANKROLL_USDC = 500;
  * are identical no matter how the intent arrived.
  */
 export async function POST(request: Request) {
-  const { marketId, side, contracts } = (await request.json()) as {
+  const { marketId, side, contracts, address } = (await request.json()) as {
     marketId: string;
     side: Side;
     contracts: number;
+    /** The connected wallet, so the balance check reads a real figure. */
+    address?: string;
   };
 
   const proposal = await buildTradeProposal({
     marketId,
     side,
     contracts,
-    availableUsdc: ASSUMED_BANKROLL_USDC,
+    availableUsdc: await readCollateralBalance(address),
   });
 
   if (!proposal) {
