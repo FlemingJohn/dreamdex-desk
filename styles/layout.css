@@ -25,10 +25,12 @@
   --signal-warning: #e8a05a;
 }
 
+/* Sits inside the sidebar inset, so it fills whatever width is left. */
 .dashboard-shell {
   display: flex;
   flex-direction: column;
   height: 100dvh;
+  min-width: 0;
   overflow: hidden;
 }
 
