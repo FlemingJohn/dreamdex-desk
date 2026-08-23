@@ -1,117 +1,139 @@
-import { getMockCalibration } from "@/lib/mock/mockCalibration";
-import { getMockLiquidity } from "@/lib/mock/mockLiquidity";
-import { getMockMarkets } from "@/lib/mock/mockMarkets";
-import { getMockPortfolio, sumUnclaimedWinnings } from "@/lib/mock/mockPortfolio";
-import { getMockOrderBook } from "@/lib/mock/mockOrderBook";
-import { getMockProbabilityPath } from "@/lib/mock/mockProbabilityPath";
-import { buildOracleExplorerUrl, getMockSettlementReceipts } from "@/lib/mock/mockSettlementReceipt";
 import {
-  getMockStuckMarkets,
-  getMockVaultFallbacks,
-  sumVaultFallbacks,
-} from "@/lib/mock/mockStuckMarkets";
-import { getMockWorkingOrders, sumEscrowedCollateral } from "@/lib/mock/mockWorkingOrders";
+  readCalibration,
+  readLiquidity,
+  readProbabilityPath,
+  readSettlementQuality,
+} from "@/lib/exchange/readAnalytics";
+import { readLiveMarkets, readSettledMarkets } from "@/lib/exchange/readMarkets";
+import { readOrderBook } from "@/lib/exchange/readOrderBook";
 import { computeBothSides } from "@/lib/analytics/computeExpectedValue";
 import { computePositionSize } from "@/lib/analytics/computePositionSize";
-import { getMockSettlementQuality } from "@/lib/mock/mockSettlementQuality";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
 
-/** These run on the server, where reading the clock directly is safe. */
-function currentSecond(): number {
-  return Math.floor(Date.now() / 1000);
-}
-
-
 /**
- * Runs one read tool and hands the result back to the model.
+ * Runs one read tool against the chain and hands the result to the model.
  *
  * These are safe to run without asking anyone, because none of them change
- * anything — they only look. Swapping the mock calls here for SDK reads is the
- * single step that takes the copilot from demo to live data.
+ * anything — they only look.
  */
-export function runReadTool(name: ReadToolName, args: Record<string, unknown> = {}): unknown {
+
+/** Stand-in until the desk reads a real balance for the connected wallet. */
+const ASSUMED_BANKROLL_USDC = 500;
+
+export async function runReadTool(
+  name: ReadToolName,
+  args: Record<string, unknown> = {}
+): Promise<unknown> {
   switch (name) {
     case "listMarkets":
-      return getMockMarkets(currentSecond()).filter(
-        (market) => market.status === "trading"
-      );
+      return readLiveMarkets(12);
 
     case "getCalibration":
-      return getMockCalibration();
+      return readCalibration();
 
     case "getProbabilityPath":
-      return getMockProbabilityPath();
+      return readProbabilityPath();
 
     case "getLiquidity":
-      return getMockLiquidity();
+      return readLiquidity();
 
     case "getSettlementQuality":
-      return getMockSettlementQuality();
+      return readSettlementQuality();
 
-    case "getPortfolio": {
-      const portfolio = getMockPortfolio();
-      return { ...portfolio, unclaimedTotalUsdc: sumUnclaimedWinnings(portfolio) };
+    case "getOrderBook": {
+      const markets = await readLiveMarkets(12);
+      const wanted = args.marketId
+        ? markets.find((market) => market.marketId === args.marketId)
+        : markets[0];
+      if (!wanted) {
+        return { error: "That market is not open." };
+      }
+      const summary = await readOrderBook(wanted.marketId, wanted.poolAddress);
+      return {
+        marketId: wanted.marketId,
+        asset: wanted.asset,
+        windowSeconds: wanted.windowSeconds,
+        bestBid: summary.bestBid,
+        bestAsk: summary.bestAsk,
+        spread: summary.spread,
+        depthAtTouch: summary.depthAtTouch,
+        bids: summary.book.bids,
+        asks: summary.book.asks,
+      };
     }
 
-    case "getOrderBook":
-      return getMockOrderBook(String(args.marketId ?? "0x8471"));
-
-    case "explainSettlement":
-      return getMockSettlementReceipts().map((receipt) => ({
-        ...receipt,
-        explorerUrl: buildOracleExplorerUrl(receipt.oracleQuestionId),
+    case "explainSettlement": {
+      /**
+       * The oracle's own working — every price source, its value, the median —
+       * lives on its explorer rather than the indexer, so what is returned here
+       * is the result plus the link that proves it.
+       */
+      const settled = await readSettledMarkets(6);
+      return settled.map((market) => ({
+        marketId: market.marketId,
+        asset: market.asset,
+        windowSeconds: market.windowSeconds,
+        strike: market.strike,
+        finalProbability: market.upProbability,
+        oracleQuestionId: market.oracleQuestionId,
+        explorerUrl: market.oracleQuestionId
+          ? `https://prd.oracle.somnia.host/questions/${market.oracleQuestionId}?view=graph`
+          : null,
       }));
-
-    case "listWorkingOrders": {
-      const orders = getMockWorkingOrders();
-      return { orders, escrowedTotalUsdc: sumEscrowedCollateral(orders) };
     }
 
     case "findEdge": {
       /**
-       * The same arithmetic the edge panel runs: price every open market
-       * against the calibration curve, keep the better side, and size it.
+       * The same arithmetic the edge panel runs: price every open market against
+       * the calibration curve, keep the better side, and size it.
        */
-      const buckets = getMockCalibration();
-      const bankrollUsdc = 500;
+      const [markets, buckets] = await Promise.all([
+        readLiveMarkets(12),
+        readCalibration(),
+      ]);
 
-      return getMockMarkets(currentSecond())
-        .filter((market) => market.status === "trading")
-        .map((market) => {
-          const sides = computeBothSides(buckets, market.upProbability);
-          const better =
-            (sides.up?.expectedValuePerContract ?? -1) >
-            (sides.down?.expectedValuePerContract ?? -1)
-              ? { side: "up", assessment: sides.up }
-              : { side: "down", assessment: sides.down };
+      return markets.map((market) => {
+        const sides = computeBothSides(buckets, market.upProbability);
+        const better =
+          (sides.up?.expectedValuePerContract ?? -1) >
+          (sides.down?.expectedValuePerContract ?? -1)
+            ? { side: "up" as const, assessment: sides.up }
+            : { side: "down" as const, assessment: sides.down };
 
-          if (!better.assessment) {
-            return { marketId: market.marketId, note: "outside every measured band" };
-          }
-
+        if (!better.assessment) {
           return {
             marketId: market.marketId,
             asset: market.asset,
-            windowSeconds: market.windowSeconds,
-            bestSide: better.side,
-            ...better.assessment,
-            recommendedStake: computePositionSize(
-              better.assessment.pricePaid,
-              better.assessment.trueProbability,
-              bankrollUsdc
-            ),
+            note: "priced outside every measured band",
           };
-        });
+        }
+
+        return {
+          marketId: market.marketId,
+          asset: market.asset,
+          windowSeconds: market.windowSeconds,
+          bestSide: better.side,
+          ...better.assessment,
+          recommendedStake: computePositionSize(
+            better.assessment.pricePaid,
+            better.assessment.trueProbability,
+            ASSUMED_BANKROLL_USDC
+          ),
+        };
+      });
     }
 
-    case "findStrandedFunds": {
-      const vaultFallbacks = getMockVaultFallbacks();
+    case "listWorkingOrders":
+    case "getPortfolio":
+    case "findStrandedFunds":
+      /**
+       * All three are specific to a wallet, and the desk signs from the browser
+       * so the server does not know which one is connected. Rather than guess,
+       * these say so — the panels read them client-side.
+       */
       return {
-        stuckMarkets: getMockStuckMarkets(),
-        vaultFallbacks,
-        vaultTotalUsdc: sumVaultFallbacks(vaultFallbacks),
+        note: "This needs the connected wallet, which only the browser knows. The matching panel in the dashboard shows it.",
       };
-    }
 
     default:
       return { error: `Unknown tool: ${name}` };
@@ -123,9 +145,8 @@ export function summarizeReadResult(name: ReadToolName, result: unknown): string
   if (Array.isArray(result)) {
     return `${result.length} rows`;
   }
-  if (name === "getPortfolio") {
-    const portfolio = result as { unclaimedTotalUsdc: number };
-    return `${portfolio.unclaimedTotalUsdc.toFixed(2)} USDC unclaimed`;
+  if (result && typeof result === "object" && "note" in result) {
+    return "needs a wallet";
   }
   return "ok";
 }

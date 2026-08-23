@@ -3,10 +3,9 @@
 import { PanelShell } from "@/components/dashboard/PanelShell";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCalibration } from "@/hooks/useCalibration";
+import { isOverconfident, useCalibration } from "@/hooks/useCalibration";
 import { useCopilot } from "@/components/copilot/CopilotProvider";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
-import { isOverconfident } from "@/lib/mock/mockCalibration";
 import { formatPercent, formatPointGap } from "@/lib/format/formatPercent";
 
 /**

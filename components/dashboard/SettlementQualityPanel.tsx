@@ -42,7 +42,6 @@ export function SettlementQualityPanel() {
                 <TableHead>Series</TableHead>
                 <TableHead className="text-right">Settled</TableHead>
                 <TableHead className="text-right">Voided</TableHead>
-                <TableHead className="text-right">Sources</TableHead>
                 <TableHead className="text-right">Latency</TableHead>
               </TableRow>
             </TableHeader>
@@ -63,10 +62,7 @@ export function SettlementQualityPanel() {
                     {formatPercent(row.voidRate, 1)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
-                    {row.averageSourcesAgreeing.toFixed(1)} / {row.totalSources}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums text-muted-foreground">
-                    {row.medianLatencySeconds.toFixed(1)}s
+                    {row.medianLatencySeconds}s
                   </TableCell>
                 </TableRow>
               ))}
@@ -74,8 +70,10 @@ export function SettlementQualityPanel() {
           </Table>
 
           <p className="panel-note mt-3">
-            ETH 15m voids most often. If you are buying a side below 0.50 there, the
-            refund is worth more than the position — which quietly improves the trade.
+            A void refunds both sides at 0.5, so it rescues a position bought cheaply
+            and costs one bought at a premium. Latency is the gap between a window
+            expiring and its result landing on-chain. Which price sources the oracle
+            asked is on its own explorer, linked from each settlement receipt.
           </p>
         </>
       )}
