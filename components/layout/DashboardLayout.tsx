@@ -6,9 +6,11 @@ import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { CalibrationPanel } from "@/components/dashboard/CalibrationPanel";
 import { LiquidityPanel } from "@/components/dashboard/LiquidityPanel";
 import { LiveMarketsPanel } from "@/components/dashboard/LiveMarketsPanel";
+import { OrderBookPanel } from "@/components/dashboard/OrderBookPanel";
 import { PortfolioPanel } from "@/components/dashboard/PortfolioPanel";
 import { ProbabilityPathPanel } from "@/components/dashboard/ProbabilityPathPanel";
 import { SettlementQualityPanel } from "@/components/dashboard/SettlementQualityPanel";
+import { SettlementReceiptPanel } from "@/components/dashboard/SettlementReceiptPanel";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCopilotPanel } from "@/hooks/useCopilotPanel";
 
@@ -31,9 +33,11 @@ export function DashboardLayout() {
           <div className="panel-grid">
             <LiveMarketsPanel />
             <CalibrationPanel />
+            <OrderBookPanel />
             <ProbabilityPathPanel />
             <LiquidityPanel />
             <SettlementQualityPanel />
+            <SettlementReceiptPanel />
             <PortfolioPanel />
           </div>
         </ScrollArea>
