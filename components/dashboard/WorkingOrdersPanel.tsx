@@ -11,8 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useWorkingOrders } from "@/hooks/useWorkingOrders";
-import { isStaleOrder } from "@/lib/mock/mockWorkingOrders";
+import { isStaleOrder, useWorkingOrders } from "@/hooks/useWorkingOrders";
 import { formatCountdown } from "@/lib/format/formatCountdown";
 import { formatWindow } from "@/lib/format/formatWindow";
 import { formatProbability } from "@/lib/format/formatProbability";
@@ -34,6 +33,7 @@ export function WorkingOrdersPanel() {
     orders,
     staleOrders,
     escrowedTotal,
+    isConnected,
     busyId,
     cancelOrder,
     cancelStaleOrders,
@@ -52,7 +52,11 @@ export function WorkingOrdersPanel() {
       }
       askQuestion="Are any of my resting orders never going to fill?"
     >
-      {orders.length === 0 ? (
+      {!isConnected ? (
+        <p className="panel-note">
+          Connect a wallet to see what you have resting on the book.
+        </p>
+      ) : orders.length === 0 ? (
         <p className="panel-note">Nothing resting. No collateral tied up.</p>
       ) : (
         <>

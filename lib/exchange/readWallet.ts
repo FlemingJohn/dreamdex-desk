@@ -130,21 +130,25 @@ export async function readUnclaimedWinnings(
         continue;
       }
 
-      // A void pays both sides at 0.5, so both are worth claiming.
-      const winningIds = onchain.isVoided
-        ? [onchain.yesId, onchain.noId]
-        : [onchain.winningOutcome === 0 ? onchain.yesId : onchain.noId];
+      const balances = await exchange.client.getOutcomeBalances(
+        address,
+        onchain.marketAddress
+      );
 
-      for (const tokenId of winningIds) {
-        const balance = await exchange.client.getOutcomeBalance(
-          onchain.outcomeToken,
-          address as `0x${string}`,
-          tokenId
-        );
-        if (balance === 0n) {
-          continue;
-        }
-        const contracts = Number(balance) / 10 ** Number(onchain.decimals ?? 6);
+      /**
+       * A void pays both sides at 0.5, so both halves are worth claiming.
+       * A resolved market pays only the winner, and redeeming the loser
+       * succeeds while paying nothing — so the side matters.
+       */
+      const claimable = onchain.isVoided
+        ? [balances.yes, balances.no]
+        : [onchain.winningOutcome === 0 ? balances.yes : balances.no];
+
+      const decimals = Number(onchain.decimals ?? 6);
+      const contracts =
+        claimable.reduce((total, held) => total + Number(held ?? 0), 0) / 10 ** decimals;
+
+      if (contracts > 0) {
         found.push({
           marketId: market.marketId,
           asset: market.asset,

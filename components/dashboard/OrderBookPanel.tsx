@@ -17,7 +17,10 @@ import { formatWindow } from "@/lib/format/formatWindow";
 export function OrderBookPanel() {
   const { tradingMarkets } = useLiveMarkets();
   const market = tradingMarkets[0];
-  const { book, deepestLevel } = useOrderBook(market?.marketId ?? "0x8471");
+  const { book, deepestLevel } = useOrderBook(
+    market?.marketId ?? null,
+    market?.poolAddress ?? null
+  );
 
   if (!market) {
     return null;
