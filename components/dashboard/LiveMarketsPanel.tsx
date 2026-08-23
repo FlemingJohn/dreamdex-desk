@@ -29,6 +29,7 @@ export function LiveMarketsPanel() {
 
   return (
     <PanelShell
+      id="live-markets"
       title="Live markets"
       description="Every open window. The line is each window's own opening price — there are no strikes."
       headerExtra={<Badge variant="secondary">{tradingMarkets.length} open</Badge>}

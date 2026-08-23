@@ -25,6 +25,7 @@ export function PortfolioPanel() {
 
   return (
     <PanelShell
+      id="portfolio"
       title="Your book"
       description="Open positions, realised performance, and winnings the protocol still owes you."
       className="panel-grid-wide"

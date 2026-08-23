@@ -20,6 +20,7 @@ export function LiquidityPanel() {
 
   return (
     <PanelShell
+      id="liquidity"
       title="Liquidity"
       description="How trades actually crossed — two buyers meeting, or a real seller."
       askQuestion="Can I actually get filled on these markets, and should I rest or take?"

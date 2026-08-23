@@ -19,6 +19,7 @@ export function ProbabilityPathPanel() {
 
   return (
     <PanelShell
+      id="probability-path"
       title="Probability path"
       description="How the winning side's price moves across a window, averaged over 412 of them."
       headerExtra={

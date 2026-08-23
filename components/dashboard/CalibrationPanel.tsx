@@ -45,6 +45,7 @@ export function CalibrationPanel() {
 
   return (
     <PanelShell
+      id="calibration"
       title="Calibration"
       description="When the market says 65%, does it happen 65% of the time?"
       headerExtra={<Badge variant="secondary">{windowsMeasured} windows</Badge>}
