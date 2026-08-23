@@ -369,7 +369,7 @@ Each action below raises one wallet prompt.
 | Merge back | **Merge back** | Pair returns to collateral |
 | Claim winnings | `/portfolio`, **Claim all** | One signature per settled market |
 | Unblock a market | `/settlement`, if any are stuck | Works on markets you do not hold |
-| Delegate to a bot | `/portfolio`, **Grant trading rights** | Grants place, cancel and shrink on one market |
+| Delegate to a bot | `/portfolio`, **Grant trading rights** | Grants place, cancel and shrink on **one window** — see finding 1 |
 | Kill switch | **Revoke now** | Immediate; resting orders untouched |
 
 **Verify the safety claim directly.** Ask the copilot to *"buy 20 UP on BTC"*. It
@@ -397,13 +397,35 @@ plausible numbers is worse than one that admits them.
 
 Three, all verified against live Shannon rather than inferred:
 
-1. **Operator delegation works on binary pools but is unreachable from the SDK.**
-   Simulating `placeBinaryOrderFor`, `cancelOrderFor` and `reduceOrderFor` from an
-   unauthorised caller all revert `OnlyApprovedContracts` — the pool asking the
-   registry and being told no. But the registry address is absent from
-   `SOMNIA_TESTNET_ADDRESSES`, the binary selector `0x5d97c566` is exported
-   nowhere, and the grant helpers live under `dist/spot/` and reject it. The
-   mechanism exists; the documented surface cannot reach it.
+1. **Operator delegation is enforced on binary pools, but no grant shape fits
+   them.** This is the strongest of the three, and it took a wrong turn to find.
+
+   The enforcement is real: simulating `placeBinaryOrderFor`, `cancelOrderFor`
+   and `reduceOrderFor` from an unauthorised caller all revert
+   `OnlyApprovedContracts` — the pool asking the registry and being told no. So a
+   delegated key genuinely can trade while being unable to withdraw, which is the
+   valuable half.
+
+   But neither grant path really works:
+
+   - **Global grants do not apply.** The registry resolves
+     `perPoolApproved OR (globalApproved AND poolRegistered)`, and reading
+     `isRegistered` on a live binary pool returns **false**. A global grant would
+     record cleanly and authorise nothing.
+   - **Per-pool grants decay.** The SDK calls `poolAddress` a *"TIME-VARYING 1:1
+     binding"* — pools are recycled between windows. A grant names an address that
+     will later serve a different market, so it covers one window rather than a
+     series.
+
+   Add to that: the registry address is absent from `SOMNIA_TESTNET_ADDRESSES`,
+   the binary selector `0x5d97c566` is exported nowhere, and the grant helpers
+   live under `dist/spot/` and reject it.
+
+   So the desk offers **one window of delegated trading**, and says so in the
+   panel rather than implying a bot can be left running. Leaving an agent
+   unattended across a rolling series needs a signature per window, which defeats
+   the point — a real gap in the protocol's agent story rather than a
+   documentation nit.
 2. **The docs and the live venues disagree.** The documentation states there are
    no strike prices and only 15-minute and 1-hour windows. Live venues set strikes
    (`strike: "247023"`, *"will ETH/USDC be at or above 2470.23"*) and run 60s,

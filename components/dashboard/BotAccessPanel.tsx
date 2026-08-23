@@ -13,16 +13,20 @@ import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import { formatWindow } from "@/lib/format/formatWindow";
 
 /**
- * Letting a bot trade for you, without letting it touch your funds.
+ * Letting a bot trade one window for you, without letting it touch your funds.
  *
  * A granted key can open, cancel and shrink your orders. It cannot deposit,
- * withdraw or redeem — the contracts keep those scoped to the owner whatever
- * the grant says, so a compromised bot key can churn your positions but never
- * move money out.
+ * withdraw or redeem — the contracts keep those scoped to the owner whatever the
+ * grant says, so a compromised bot key can churn your positions but never move
+ * money out. That half of the claim is solid.
  *
- * The grant is per-pool rather than global. A global one silently extends to
- * every pool registered in future, which is more reach than a bot approved
- * today should inherit tomorrow.
+ * The reach is narrower than "automation" suggests, and the panel says so.
+ * Grants are per-pool because binary pools are absent from the registry a global
+ * grant checks against, and a binary pool is recycled between windows — so the
+ * address being granted will later serve a different market. One window of
+ * autonomy, then another signature.
+ *
+ * That is worth stating plainly rather than implying a bot can be left running.
  */
 export function BotAccessPanel() {
   const { tradingMarkets } = useLiveMarkets();
@@ -67,8 +71,8 @@ export function BotAccessPanel() {
       <div className="flex flex-col gap-4">
         <div>
           <p className="panel-note mb-2">
-            The bot key. Grant it place, cancel and shrink on one market — it can
-            manage its own orders and nothing else.
+            The bot key. It gets place, cancel and shrink on the one window named
+            below — enough to manage its own orders, and nothing else.
           </p>
           <div className="flex flex-wrap items-center gap-2">
             <Input
@@ -104,6 +108,12 @@ export function BotAccessPanel() {
           </Button>
         </div>
 
+        <p className="panel-note">
+          {market
+            ? `Granting for ${market.asset} ${formatWindow(market.windowSeconds)}, which closes in about ${Math.round(market.secondsRemaining / 60)} minutes. When it does, the pool is reused by a different market and this grant no longer follows your series — you would grant again.`
+            : "No open window to grant against."}
+        </p>
+
         {isPartial ? (
           <p className="panel-note value-negative">
             Only part of the grant is in place. A key that can open orders but not
@@ -129,6 +139,11 @@ export function BotAccessPanel() {
           <p className="panel-note">
             Revoking takes effect immediately and leaves resting orders alone, so it
             stops new activity without disturbing the book.
+          </p>
+          <p className="panel-note">
+            <span className="font-medium">Scope</span> is one pool. Binary pools are
+            not in the registry a venue-wide grant checks, so there is no way to
+            cover a whole rolling series in one signature.
           </p>
         </div>
       </div>

@@ -104,7 +104,7 @@ export { REGISTRY_ABI };
 
 interface GrantParams {
   walletClient: WalletClient;
-  /** The pool the bot may trade. Kept narrow on purpose — see below. */
+  /** The pool the bot may trade. Per-pool is the only path — see below. */
   pool: Address;
   /** The hot key the bot runs on. */
   operator: Address;
@@ -114,10 +114,17 @@ interface GrantParams {
 /**
  * Grants or revokes a bot's trading rights on one pool.
  *
- * Per-pool rather than global, which is the tighter of the two options the
- * registry offers. A global grant auto-extends to pools registered in future,
- * and a bot should not gain reach over venues that did not exist when it was
- * approved.
+ * Per-pool is not a preference here, it is the only option. The registry
+ * resolves a grant as `perPoolApproved OR (globalApproved AND poolRegistered)`,
+ * and binary pools are not in the registry the global path checks — verified by
+ * reading `isRegistered` on a live one, which returns false. So a global grant
+ * would record fine and authorise nothing.
+ *
+ * That matters more than it sounds, because a binary pool is a moving target.
+ * Pools are recycled between windows, so the address a grant names will later
+ * serve a different market. A grant therefore covers one window in practice, not
+ * a series — the caller has to re-grant as the series rolls, which is a
+ * signature per window.
  *
  * Revoking is the same call with `approved: false`. It takes effect immediately
  * and leaves resting orders alone, so a kill switch stops new activity without
