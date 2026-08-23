@@ -1,16 +1,10 @@
 "use client";
 
-import { PanelRightOpen } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/layout/ThemeToggle";
 
-interface DashboardHeaderProps {
-  isCopilotOpen: boolean;
-  onOpenCopilot: () => void;
-}
-
-/** Title bar. The copilot toggle only appears when the panel is hidden. */
-export function DashboardHeader({ isCopilotOpen, onOpenCopilot }: DashboardHeaderProps) {
+/** Title bar. The copilot has its own launcher, so it is not opened from here. */
+export function DashboardHeader() {
   return (
     <header className="dashboard-header">
       <div>
@@ -24,12 +18,7 @@ export function DashboardHeader({ isCopilotOpen, onOpenCopilot }: DashboardHeade
         mock data
       </Badge>
 
-      {isCopilotOpen ? null : (
-        <Button variant="outline" size="sm" onClick={onOpenCopilot}>
-          <PanelRightOpen className="size-4" />
-          Copilot
-        </Button>
-      )}
+      <ThemeToggle />
     </header>
   );
 }
