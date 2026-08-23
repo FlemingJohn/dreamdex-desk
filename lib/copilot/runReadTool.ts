@@ -5,6 +5,8 @@ import {
   readSettlementQuality,
 } from "@/lib/exchange/readAnalytics";
 import { readLiveMarkets, readSettledMarkets } from "@/lib/exchange/readMarkets";
+import { readStuckMarkets } from "@/lib/exchange/readSettlement";
+import { readPortfolio, readWorkingOrders } from "@/lib/exchange/readWallet";
 import { readOrderBook } from "@/lib/exchange/readOrderBook";
 import { computeBothSides } from "@/lib/analytics/computeExpectedValue";
 import { computePositionSize } from "@/lib/analytics/computePositionSize";
@@ -22,7 +24,9 @@ const ASSUMED_BANKROLL_USDC = 500;
 
 export async function runReadTool(
   name: ReadToolName,
-  args: Record<string, unknown> = {}
+  args: Record<string, unknown> = {},
+  /** The connected wallet, when the browser sent one. */
+  address?: string
 ): Promise<unknown> {
   switch (name) {
     case "listMarkets":
@@ -123,17 +127,30 @@ export async function runReadTool(
       });
     }
 
-    case "listWorkingOrders":
-    case "getPortfolio":
     case "findStrandedFunds":
       /**
-       * All three are specific to a wallet, and the desk signs from the browser
-       * so the server does not know which one is connected. Rather than guess,
-       * these say so — the panels read them client-side.
+       * Venue-wide, not wallet-specific: a market that expired without paying
+       * out is stuck for everyone holding it, and anyone at all can unblock it.
        */
-      return {
-        note: "This needs the connected wallet, which only the browser knows. The matching panel in the dashboard shows it.",
-      };
+      return readStuckMarkets();
+
+    case "listWorkingOrders":
+      /**
+       * Needs to know whose orders. The address comes from the browser, since
+       * that is where the wallet is connected — without it there is nothing to
+       * look up, and saying so beats returning an empty list that reads as
+       * "you have none".
+       */
+      if (!address) {
+        return { note: "No wallet connected, so there are no orders to read." };
+      }
+      return readWorkingOrders(address);
+
+    case "getPortfolio":
+      if (!address) {
+        return { note: "No wallet connected, so there is no portfolio to read." };
+      }
+      return readPortfolio(address);
 
     default:
       return { error: `Unknown tool: ${name}` };

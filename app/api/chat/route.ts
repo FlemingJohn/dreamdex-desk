@@ -9,6 +9,7 @@ import { runReadTool, summarizeReadResult } from "@/lib/copilot/runReadTool";
 import { isSafeWriteTool, runWriteTool } from "@/lib/copilot/runWriteTool";
 import { COPILOT_SYSTEM_PROMPT } from "@/lib/copilot/systemPrompt";
 import { buildVisual } from "@/lib/copilot/buildVisual";
+import { OFF_TOPIC_REPLY, isClearlyOffTopic } from "@/lib/copilot/isOnTopic";
 import { READ_TOOL_NAMES, copilotTools } from "@/lib/copilot/toolDefinitions";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
 import type { ChatMessage, CopilotVisual, ToolCallRecord } from "@/types/copilot";
@@ -34,9 +35,24 @@ function isReadTool(name: string): name is ReadToolName {
  * signed here, and this route has no way to sign anything even if it wanted to.
  */
 export async function POST(request: Request) {
-  const { messages } = (await request.json()) as {
+  const { messages, address } = (await request.json()) as {
     messages: { role: string; content: string }[];
+    /** The connected wallet, so the copilot can read the trader's own book. */
+    address?: string;
   };
+
+  /**
+   * The prompt handles anything nuanced. This only catches requests where a
+   * model call would be pure waste — asking a trading desk to write code, or
+   * tell a joke.
+   */
+  const lastQuestion = messages.filter((m) => m.role === "user").at(-1)?.content ?? "";
+  if (isClearlyOffTopic(lastQuestion)) {
+    return NextResponse.json({
+      role: "assistant",
+      text: OFF_TOPIC_REPLY,
+    } satisfies Partial<ChatMessage>);
+  }
 
   let client;
   try {
@@ -158,7 +174,7 @@ export async function POST(request: Request) {
       }
 
       if (isReadTool(toolName)) {
-        const result = await runReadTool(toolName, toolArguments);
+        const result = await runReadTool(toolName, toolArguments, address);
         visual = buildVisual(toolName, result) ?? visual;
         toolCallsMade.push({
           step: toolCallsMade.length + 1,

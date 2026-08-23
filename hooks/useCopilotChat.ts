@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useAccount } from "wagmi";
 import { useWriteActions } from "@/hooks/useWriteActions";
 import type { ChatMessage, TradeProposal } from "@/types/copilot";
 
@@ -24,6 +25,7 @@ function createMessageId(): string {
  * triggers by pressing approve.
  */
 export function useCopilotChat() {
+  const { address } = useAccount();
   const { placeProposal } = useWriteActions();
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [isThinking, setIsThinking] = useState(false);
@@ -48,6 +50,7 @@ export function useCopilotChat() {
               role: message.role,
               content: message.text,
             })),
+            address,
           }),
         });
 
@@ -70,7 +73,7 @@ export function useCopilotChat() {
         setIsThinking(false);
       }
     },
-    [isThinking, messages]
+    [address, isThinking, messages]
   );
 
   /**
