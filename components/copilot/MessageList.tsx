@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { ApprovalCard } from "@/components/copilot/ApprovalCard";
-import { ToolCallRow } from "@/components/copilot/ToolCallRow";
+import { ReasoningTrail } from "@/components/copilot/ReasoningTrail";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ChatMessage } from "@/types/copilot";
 
@@ -41,11 +41,7 @@ export function MessageList({
             </div>
 
             {message.toolCalls && message.toolCalls.length > 0 ? (
-              <div className="copilot-tool-list">
-                {message.toolCalls.map((toolCall) => (
-                  <ToolCallRow key={toolCall.name} toolCall={toolCall} />
-                ))}
-              </div>
+              <ReasoningTrail toolCalls={message.toolCalls} />
             ) : null}
 
             <p className="copilot-message-text">{message.text}</p>

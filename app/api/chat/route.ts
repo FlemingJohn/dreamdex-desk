@@ -80,6 +80,13 @@ export async function POST(request: Request) {
       } satisfies Partial<ChatMessage>);
     }
 
+    /**
+     * The model often says what it is about to look up in the same message as
+     * the tool call. That line is the closest thing to visible reasoning this
+     * model produces, so it is attached to the step rather than dropped.
+     */
+    const narration = reply.content?.trim() || undefined;
+
     conversation.push(reply);
 
     for (const toolCall of requestedTools as ChatCompletionMessageToolCall[]) {
@@ -87,6 +94,7 @@ export async function POST(request: Request) {
         continue;
       }
 
+      const startedAt = Date.now();
       const toolName = toolCall.function.name;
       const toolArguments = JSON.parse(toolCall.function.arguments || "{}");
 
@@ -98,7 +106,16 @@ export async function POST(request: Request) {
           availableUsdc: ASSUMED_BANKROLL_USDC,
         });
 
-        toolCallsMade.push({ name: toolName, status: proposal ? "finished" : "failed" });
+        toolCallsMade.push({
+          step: toolCallsMade.length + 1,
+          name: toolName,
+          status: proposal ? "finished" : "failed",
+          narration,
+          arguments: toolArguments,
+          summary: proposal
+            ? `${toolArguments.contracts} ${String(toolArguments.side).toUpperCase()} drawn up for approval`
+            : "market not open",
+        });
 
         return NextResponse.json({
           role: "assistant",
@@ -117,9 +134,13 @@ export async function POST(request: Request) {
           toolArguments
         );
         toolCallsMade.push({
+          step: toolCallsMade.length + 1,
           name: toolName,
           status: "finished",
+          narration,
+          arguments: toolArguments,
           summary: outcome.summary,
+          durationMs: Date.now() - startedAt,
         });
         conversation.push({
           role: "tool",
@@ -132,9 +153,13 @@ export async function POST(request: Request) {
       if (isReadTool(toolName)) {
         const result = await runReadTool(toolName, toolArguments);
         toolCallsMade.push({
+          step: toolCallsMade.length + 1,
           name: toolName,
           status: "finished",
+          narration,
+          arguments: toolArguments,
           summary: summarizeReadResult(toolName, result),
+          durationMs: Date.now() - startedAt,
         });
         conversation.push({
           role: "tool",
@@ -144,7 +169,14 @@ export async function POST(request: Request) {
         continue;
       }
 
-      toolCallsMade.push({ name: toolName, status: "failed" });
+      toolCallsMade.push({
+        step: toolCallsMade.length + 1,
+        name: toolName,
+        status: "failed",
+        narration,
+        arguments: toolArguments,
+        summary: "unknown tool",
+      });
       conversation.push({
         role: "tool",
         tool_call_id: toolCall.id,

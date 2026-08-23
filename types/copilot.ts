@@ -12,11 +12,28 @@ export type MessageRole = "user" | "assistant";
 
 export type ToolStatus = "running" | "finished" | "failed";
 
-/** Shown in the transcript as the copilot reads data. */
+/**
+ * One step the copilot took, shown so its answer can be checked.
+ *
+ * GPT-4o does not emit reasoning tokens the way an extended-thinking model
+ * does, so there is no hidden monologue to reveal. What it does emit is a line
+ * of narration alongside each tool call saying what it is about to look up, plus
+ * the call and its result — and that trail *is* the reasoning. It is captured
+ * here rather than discarded.
+ */
 export interface ToolCallRecord {
+  /** Position in the sequence, so the order is legible. */
+  step: number;
   name: string;
   status: ToolStatus;
+  /** What the copilot said it was doing, when it said anything. */
+  narration?: string;
+  /** Arguments it passed, for the reader who wants to check them. */
+  arguments?: Record<string, unknown>;
+  /** A short description of what came back. */
   summary?: string;
+  /** How long the call took, in milliseconds. */
+  durationMs?: number;
 }
 
 /** One safety check run before a trade is offered for approval. */
