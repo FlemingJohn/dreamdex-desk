@@ -1,6 +1,6 @@
 "use client";
 
-import { GripVertical, X } from "lucide-react";
+import { Bot, X } from "lucide-react";
 import { useCopilot } from "@/components/copilot/CopilotProvider";
 import { MessageInput } from "@/components/copilot/MessageInput";
 import { MessageList } from "@/components/copilot/MessageList";
@@ -58,7 +58,7 @@ export function CopilotPanel() {
         {...dragHandleProps}
       >
         <div className="flex items-center gap-2">
-          <GripVertical className="size-4 text-muted-foreground" />
+          <Bot className="size-4 text-muted-foreground" />
           <span className="copilot-title">Copilot</span>
           <Badge variant="secondary">approval required</Badge>
         </div>
