@@ -1,6 +1,7 @@
 /*
- * Dashboard shell — the header, the split between the panel grid and the
- * copilot, and the shared colours the panels read from.
+ * Dashboard shell — the header, the panel grid, and the shared colours the
+ * panels read from. Type sizes come from Tailwind's own scale rather than
+ * hand-picked pixel values, so the desk matches the shadcn components in it.
  *
  * Up and down are a warm / cool pair rather than the usual red and green, so a
  * side never reads as "good" or "bad" on its own. They are defined for both
@@ -43,16 +44,6 @@
   flex-shrink: 0;
 }
 
-.dashboard-title {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.dashboard-subtitle {
-  font-size: 0.75rem;
-  color: var(--muted-foreground);
-}
 
 .dashboard-body {
   flex: 1;
