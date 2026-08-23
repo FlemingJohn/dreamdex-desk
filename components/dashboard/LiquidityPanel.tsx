@@ -22,6 +22,7 @@ export function LiquidityPanel() {
     <PanelShell
       title="Liquidity"
       description="How trades actually crossed — two buyers meeting, or a real seller."
+      askQuestion="Can I actually get filled on these markets, and should I rest or take?"
     >
       {isLoading ? (
         <Skeleton className="h-48 w-full" />
