@@ -39,6 +39,7 @@ export function WorkingOrdersPanel() {
     cancelOrder,
     cancelStaleOrders,
     reduceOrder,
+    requoteOrder,
   } = useWorkingOrders();
 
   return (
@@ -109,6 +110,25 @@ export function WorkingOrdersPanel() {
                     </TableCell>
                     <TableCell>
                       <div className="flex justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          disabled={isBusy}
+                          onClick={() =>
+                            requoteOrder(
+                              order.orderId,
+                              order.poolAddress,
+                              order.side,
+                              remaining,
+                              order.side === "up"
+                                ? order.probability + 0.01
+                                : order.probability - 0.01
+                            )
+                          }
+                          title="Move one tick toward the touch, atomically"
+                        >
+                          Re-quote
+                        </Button>
                         {remaining > 1 ? (
                           <Button
                             variant="ghost"

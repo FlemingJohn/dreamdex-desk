@@ -15,6 +15,12 @@ import { formatWindow } from "@/lib/format/formatWindow";
 const DEFAULT_CONTRACTS = 10;
 
 /**
+ * Stands in for whoever is routing the flow. A real deployment would put its own
+ * address here — this is the account that would earn the per-fill fee.
+ */
+const BUILDER_ADDRESS = "0x0000000000000000000000000000000000000001";
+
+/**
  * Minting and merging complete sets, and selling a side once you hold one.
  *
  * One unit of collateral mints one Up and one Down. Exactly one of them pays out
@@ -32,7 +38,8 @@ const DEFAULT_CONTRACTS = 10;
  */
 export function CompleteSetsPanel() {
   const { tradingMarkets } = useLiveMarkets();
-  const { canSign, pending, mintSet, burnSet, sellSide } = useWriteActions();
+  const { canSign, pending, mintSet, burnSet, sellSide, approveBuilder } =
+    useWriteActions();
   const [contracts, setContracts] = useState(DEFAULT_CONTRACTS);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -154,6 +161,27 @@ export function CompleteSetsPanel() {
                 {formatProbability(1 - market.upProbability + market.spread / 2)}
               </Button>
             </div>
+          </div>
+
+          <Separator />
+
+          <div>
+            <p className="panel-note mb-2">
+              Routing flow for someone else? Builder codes let a front end charge a
+              per-fill cut on the orders it submits, capped at one percent. The
+              approval is per-pool and granted by whoever owns the order, so nobody
+              can tag themselves onto your flow.
+            </p>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={pending !== null}
+              onClick={() =>
+                act(() => approveBuilder(market.poolAddress, BUILDER_ADDRESS, 10))
+              }
+            >
+              Approve builder · 10 bps
+            </Button>
           </div>
 
           {message ? <p className="panel-note">{message}</p> : null}

@@ -309,6 +309,93 @@ export function useWriteActions() {
     [exchange, run]
   );
 
+  /**
+   * Moves a resting order to a new price in one transaction.
+   *
+   * Cancelling and re-placing leaves a gap: for the block or two between the
+   * two transactions the quote is simply absent, and on a fast tape that is
+   * where the fill you wanted goes. An amend cancels and places atomically, so
+   * the quote never disappears.
+   *
+   * The replacement carries a brand new order id and the old one is dead the
+   * moment this lands, so anything tracking it has to follow the new id — which
+   * is why the id is returned rather than just a hash.
+   */
+  const amendOrder = useCallback(
+    (
+      orderId: string,
+      poolAddress: string,
+      side: "up" | "down",
+      contracts: number,
+      newProbability: number
+    ) =>
+      run(orderId, async () => {
+        const expiresAt = BigInt(Math.floor(Date.now() / 1000) + 300) * 1_000_000_000n;
+
+        const result = await exchange!.trader.amendOrder({
+          pool: poolAddress as `0x${string}`,
+          oldOrderId: orderId,
+          /**
+           * Left false so a filled order is reported rather than silently
+           * replaced. A maker racing a fill wants to know it happened and
+           * decide again, not have a fresh order placed on its behalf.
+           */
+          alwaysPlace: false,
+          newOrder: {
+            isBid: side === "up",
+            price: toRawUnits(newProbability),
+            quantity: toRawUnits(contracts),
+            expireTimestampNs: expiresAt,
+            // Post-only, so a re-quote never crosses into the book by accident.
+            orderType: 3,
+          },
+        });
+
+        return {
+          ok: true,
+          transactionHash: result.hash,
+          message: `Moved to ${newProbability.toFixed(3)} without leaving a gap.`,
+        };
+      }),
+    [exchange, run]
+  );
+
+  /**
+   * Lets a front end charge a fee on the flow it routes.
+   *
+   * This is the venue's revenue model for anything built on top of it: an app
+   * tags the orders it submits, and earns a per-fill cut that settles to its own
+   * vault balance. The cap is a whole percent, and approving zero revokes.
+   *
+   * It is per-pool and keyed on the order owner, so the trader grants it — a
+   * front end cannot tag itself onto someone else's flow. The docs only ever
+   * describe this for spot, but the binary order path carries the same two
+   * fields, so it works here too.
+   */
+  const approveBuilder = useCallback(
+    (poolAddress: string, builderAddress: string, feeBps: number) =>
+      run(`builder-${poolAddress}`, async () => {
+        // The contract counts in basis points times a thousand.
+        const rate = BigInt(Math.round(feeBps * 1000));
+
+        const result = await exchange!.trader.approveBuilder({
+          pool: poolAddress as `0x${string}`,
+          builder: builderAddress as `0x${string}`,
+          maxFeeBpsTimes1k: rate,
+        });
+
+        return {
+          ok: true,
+          transactionHash: result.hash,
+          message:
+            feeBps === 0
+              ? "Builder approval revoked."
+              : `Approved up to ${feeBps} bps per fill on this pool.`,
+        };
+      }),
+    [exchange, run]
+  );
+
   return {
     canSign: exchange !== null,
     pending,
@@ -316,6 +403,7 @@ export function useWriteActions() {
     cancelOrder,
     cancelOrders,
     reduceOrder,
+    amendOrder,
     redeem,
     pokeOracle,
     voidExpired,
@@ -323,5 +411,6 @@ export function useWriteActions() {
     mintSet,
     burnSet,
     sellSide,
+    approveBuilder,
   };
 }

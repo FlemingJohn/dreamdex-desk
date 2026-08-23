@@ -111,6 +111,41 @@ export function useWorkingOrders() {
     [refresh, write]
   );
 
+  /**
+   * Moves an order to a new price without leaving a gap.
+   *
+   * Cancelling and re-placing means the quote is absent for a block or two, and
+   * on a fast tape that is exactly when the fill arrives. Amend does both in one
+   * transaction.
+   */
+  const requoteOrder = useCallback(
+    async (
+      orderId: string,
+      poolAddress: string,
+      side: "up" | "down",
+      contracts: number,
+      newProbability: number
+    ) => {
+      setBusyId(orderId);
+      try {
+        const outcome = await write.amendOrder(
+          orderId,
+          poolAddress,
+          side,
+          contracts,
+          newProbability
+        );
+        setLastMessage(outcome.message);
+        if (outcome.ok) {
+          await refresh();
+        }
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [refresh, write]
+  );
+
   return {
     orders: workingOrders,
     staleOrders,
@@ -122,5 +157,6 @@ export function useWorkingOrders() {
     cancelOrder,
     cancelStaleOrders,
     reduceOrder,
+    requoteOrder,
   };
 }
