@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 300" width="1200" height="300" role="img" aria-label="DreamDEX Desk — analytics and an approval-gated copilot for event contracts on Somnia">
+  <title>DreamDEX Desk</title>
+
+  <defs>
+    <linearGradient id="ground" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0E1418"/>
+      <stop offset="1" stop-color="#131C22"/>
+    </linearGradient>
+    <linearGradient id="downSide" x1="0" x2="1">
+      <stop offset="0" stop-color="#E8815A" stop-opacity="0.02"/>
+      <stop offset="1" stop-color="#E8815A" stop-opacity="0.16"/>
+    </linearGradient>
+    <linearGradient id="upSide" x1="0" x2="1">
+      <stop offset="0" stop-color="#5FD3C4" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#5FD3C4" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1200" height="300" fill="url(#ground)"/>
+
+  <!-- A market split by the line its price is measured against. -->
+  <rect x="0" y="0" width="470" height="300" fill="url(#downSide)"/>
+  <rect x="470" y="0" width="730" height="300" fill="url(#upSide)"/>
+  <rect x="468" y="0" width="2.5" height="300" fill="#F4E4B8" opacity="0.5"/>
+
+  <!-- The probability axis, drawn as the grid a desk is read against. -->
+  <g stroke="#2A363F" stroke-width="1" opacity="0.55">
+    <line x1="120" y1="252" x2="1080" y2="252"/>
+    <line x1="120" y1="240" x2="120" y2="264"/>
+    <line x1="360" y1="240" x2="360" y2="264"/>
+    <line x1="600" y1="240" x2="600" y2="264"/>
+    <line x1="840" y1="240" x2="840" y2="264"/>
+    <line x1="1080" y1="240" x2="1080" y2="264"/>
+  </g>
+  <g font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="12" fill="#6B7B87">
+    <text x="120" y="282" text-anchor="middle">0.00</text>
+    <text x="360" y="282" text-anchor="middle">0.25</text>
+    <text x="600" y="282" text-anchor="middle">0.50</text>
+    <text x="840" y="282" text-anchor="middle">0.75</text>
+    <text x="1080" y="282" text-anchor="middle">1.00</text>
+  </g>
+
+  <!-- The logo mark. -->
+  <g transform="translate(96, 60)">
+    <rect width="64" height="64" rx="14" fill="#0B1116" stroke="#2A363F"/>
+    <path d="M12 18h18v28H12z" fill="#E8815A" opacity="0.85"/>
+    <path d="M34 18h18v28H34z" fill="#5FD3C4"/>
+    <rect x="30.5" y="12" width="3" height="40" rx="1.5" fill="#F4E4B8"/>
+  </g>
+
+  <g font-family="'Chakra Petch', 'Trebuchet MS', sans-serif">
+    <text x="188" y="92" font-size="52" font-weight="700" letter-spacing="6" fill="#DCE6EC">DREAMDEX DESK</text>
+    <text x="190" y="126" font-size="17" letter-spacing="1.2" fill="#9BAAB5">
+      Analytics and an approval-gated AI copilot for Event Contracts on Somnia
+    </text>
+  </g>
+
+  <!-- The claim the project actually rests on. -->
+  <g font-family="ui-monospace, 'SF Mono', Menlo, monospace" font-size="13.5" fill="#5FD3C4">
+    <text x="190" y="172">Every figure read from the chain. No mock data.</text>
+  </g>
+
+  <g font-family="'Chakra Petch', 'Trebuchet MS', sans-serif" font-size="12" letter-spacing="2.4" fill="#6B7B87">
+    <text x="190" y="204">CALIBRATION</text>
+    <text x="326" y="204">·</text>
+    <text x="344" y="204">EXPECTED VALUE</text>
+    <text x="514" y="204">·</text>
+    <text x="532" y="204">SETTLEMENT PROOF</text>
+    <text x="726" y="204">·</text>
+    <text x="744" y="204">HUMAN IN THE LOOP</text>
+  </g>
+
+  <!-- Territory labels, echoing the panels. -->
+  <g font-family="'Chakra Petch', 'Trebuchet MS', sans-serif" font-size="12" letter-spacing="3">
+    <text x="1080" y="40" text-anchor="end" fill="#5FD3C4" opacity="0.8">UP</text>
+    <text x="120" y="40" fill="#E8815A" opacity="0.8">DOWN</text>
+  </g>
+</svg>
