@@ -1,0 +1,185 @@
+/*
+ * The copilot side panel — transcript, tool-call lines, and the approval card.
+ *
+ * The approval card is deliberately the loudest thing in the panel. It is the
+ * only place in the product where a person authorises money to move, so it
+ * should never be mistaken for an ordinary message.
+ */
+
+.copilot-panel {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  border-left: 1px solid var(--border);
+  background: var(--card);
+}
+
+.copilot-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.copilot-title {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.copilot-transcript {
+  flex: 1;
+  min-height: 0;
+}
+
+.copilot-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1rem;
+}
+
+.copilot-message-role {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted-foreground);
+  margin-bottom: 0.25rem;
+}
+
+.copilot-message-text {
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.copilot-message-user .copilot-message-text {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.5rem;
+  background: var(--muted);
+}
+
+/* Tool calls — shown so the reader can see what the copilot looked at. */
+
+.copilot-tool-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.5rem 0;
+}
+
+.copilot-tool-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.75rem;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  color: var(--muted-foreground);
+}
+
+.copilot-tool-name {
+  color: var(--foreground);
+}
+
+/* Approval card. */
+
+.approval-card {
+  border: 1px solid var(--signal-warning);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  margin-top: 0.75rem;
+}
+
+.approval-card-header {
+  padding: 0.5rem 0.75rem;
+  background: color-mix(in srgb, var(--signal-warning) 12%, transparent);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--signal-warning);
+}
+
+.approval-card-body {
+  padding: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+}
+
+.approval-summary {
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.approval-figures {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.375rem 1rem;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.approval-figure-label {
+  color: var(--muted-foreground);
+}
+
+.approval-checks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+}
+
+.approval-check-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.approval-check-passed {
+  color: var(--side-up);
+}
+
+.approval-check-failed {
+  color: var(--side-down);
+}
+
+.approval-actions {
+  display: flex;
+  gap: 0.5rem;
+  padding-top: 0.25rem;
+}
+
+.approval-actions > * {
+  flex: 1;
+}
+
+.approval-settled {
+  padding: 0.625rem 0.75rem;
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+  border-top: 1px solid var(--border);
+}
+
+/* Composer. */
+
+.copilot-composer {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-top: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.copilot-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+  padding: 0 1rem 0.75rem;
+}
