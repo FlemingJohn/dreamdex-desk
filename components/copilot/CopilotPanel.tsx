@@ -1,11 +1,12 @@
 "use client";
 
-import { X } from "lucide-react";
+import { GripVertical, X } from "lucide-react";
+import { useCopilot } from "@/components/copilot/CopilotProvider";
 import { MessageInput } from "@/components/copilot/MessageInput";
 import { MessageList } from "@/components/copilot/MessageList";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { useCopilot } from "@/components/copilot/CopilotProvider";
+import { useDraggablePanel } from "@/hooks/useDraggablePanel";
 
 const SUGGESTED_QUESTIONS = [
   "Anything worth trading right now?",
@@ -16,24 +17,42 @@ const SUGGESTED_QUESTIONS = [
 /**
  * The copilot, floating over the dashboard from its launcher.
  *
- * It sits on top of the data it talks about rather than beside it, so a claim
- * like "windows priced this high resolve up far less often" can still be
- * checked against the calibration panel — close the copilot and it is there.
+ * It can be dragged by its header, because it necessarily covers part of the
+ * thing it is talking about — being able to shove it aside to check a panel is
+ * the whole reason it floats rather than docking.
  */
 export function CopilotPanel() {
   const { messages, isThinking, sendMessage, approveProposal, rejectProposal, close } =
     useCopilot();
+  const { panelRef, position, isDragging, resetPosition, dragHandleProps } =
+    useDraggablePanel();
 
   return (
-    <div className="copilot-panel">
-      <div className="copilot-header">
+    <div
+      ref={panelRef}
+      className="copilot-panel"
+      style={position ? { left: position.left, top: position.top, bottom: "auto" } : undefined}
+    >
+      <div
+        className={`copilot-header copilot-header-draggable ${isDragging ? "is-dragging" : ""}`}
+        {...dragHandleProps}
+      >
         <div className="flex items-center gap-2">
+          <GripVertical className="size-4 text-muted-foreground" />
           <span className="copilot-title">Copilot</span>
           <Badge variant="secondary">approval required</Badge>
         </div>
-        <Button variant="ghost" size="icon" onClick={close} aria-label="Hide copilot">
-          <X className="size-4" />
-        </Button>
+
+        <div className="flex items-center gap-1">
+          {position ? (
+            <Button variant="ghost" size="sm" onClick={resetPosition}>
+              Reset
+            </Button>
+          ) : null}
+          <Button variant="ghost" size="icon" onClick={close} aria-label="Close copilot">
+            <X className="size-4" />
+          </Button>
+        </div>
       </div>
 
       <MessageList
