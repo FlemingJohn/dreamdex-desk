@@ -26,6 +26,7 @@ export function ProbabilityPathPanel() {
           <Badge variant="secondary">cheapest at {cheapestEntryMinute}m</Badge>
         )
       }
+      askQuestion="When in a window should I enter, and why then?"
     >
       {isLoading ? (
         <Skeleton className="h-40 w-full" />
