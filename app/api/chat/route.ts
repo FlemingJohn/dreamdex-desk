@@ -107,7 +107,7 @@ export async function POST(request: Request) {
       }
 
       if (isReadTool(toolName)) {
-        const result = runReadTool(toolName);
+        const result = runReadTool(toolName, toolArguments);
         toolCallsMade.push({
           name: toolName,
           status: "finished",
