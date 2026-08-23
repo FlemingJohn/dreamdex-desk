@@ -10,12 +10,16 @@ import type { LiveMarket } from "@/types/market";
 const FIFTEEN_MINUTES_IN_SECONDS = 15 * 60;
 const ONE_HOUR_IN_SECONDS = 60 * 60;
 
-function secondsLeftInWindow(windowLengthInSeconds: number): number {
-  const secondsNow = Math.floor(Date.now() / 1000);
+function secondsLeftInWindow(windowLengthInSeconds: number, secondsNow: number): number {
   return windowLengthInSeconds - (secondsNow % windowLengthInSeconds);
 }
 
-export function getMockMarkets(): LiveMarket[] {
+/**
+ * Takes the current second rather than reading the clock itself, so the result
+ * is the same every time for a given input. That keeps what the server renders
+ * and what the browser renders in agreement.
+ */
+export function getMockMarkets(secondsNow: number): LiveMarket[] {
   return [
     {
       marketId: "0x8471",
@@ -28,7 +32,7 @@ export function getMockMarkets(): LiveMarket[] {
       depthAtTouch: 1420,
       volumeUsdc: 8240,
       tradeCount: 186,
-      secondsRemaining: secondsLeftInWindow(FIFTEEN_MINUTES_IN_SECONDS),
+      secondsRemaining: secondsLeftInWindow(FIFTEEN_MINUTES_IN_SECONDS, secondsNow),
       status: "trading",
     },
     {
@@ -42,7 +46,7 @@ export function getMockMarkets(): LiveMarket[] {
       depthAtTouch: 3110,
       volumeUsdc: 22410,
       tradeCount: 402,
-      secondsRemaining: secondsLeftInWindow(ONE_HOUR_IN_SECONDS),
+      secondsRemaining: secondsLeftInWindow(ONE_HOUR_IN_SECONDS, secondsNow),
       status: "trading",
     },
     {
@@ -56,7 +60,7 @@ export function getMockMarkets(): LiveMarket[] {
       depthAtTouch: 940,
       volumeUsdc: 4120,
       tradeCount: 97,
-      secondsRemaining: secondsLeftInWindow(FIFTEEN_MINUTES_IN_SECONDS),
+      secondsRemaining: secondsLeftInWindow(FIFTEEN_MINUTES_IN_SECONDS, secondsNow),
       status: "trading",
     },
     {
@@ -70,7 +74,7 @@ export function getMockMarkets(): LiveMarket[] {
       depthAtTouch: 2240,
       volumeUsdc: 11830,
       tradeCount: 233,
-      secondsRemaining: secondsLeftInWindow(ONE_HOUR_IN_SECONDS),
+      secondsRemaining: secondsLeftInWindow(ONE_HOUR_IN_SECONDS, secondsNow),
       status: "trading",
     },
     {
