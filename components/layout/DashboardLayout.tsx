@@ -4,6 +4,7 @@ import { CopilotLauncher } from "@/components/copilot/CopilotLauncher";
 import { CopilotPanel } from "@/components/copilot/CopilotPanel";
 import { CopilotProvider, useCopilot } from "@/components/copilot/CopilotProvider";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
+import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
 import { CalibrationPanel } from "@/components/dashboard/CalibrationPanel";
 import { LiquidityPanel } from "@/components/dashboard/LiquidityPanel";
 import { LiveMarketsPanel } from "@/components/dashboard/LiveMarketsPanel";
@@ -13,8 +14,9 @@ import { ProbabilityPathPanel } from "@/components/dashboard/ProbabilityPathPane
 import { SettlementQualityPanel } from "@/components/dashboard/SettlementQualityPanel";
 import { SettlementReceiptPanel } from "@/components/dashboard/SettlementReceiptPanel";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
-/** Panels always get the full width; the copilot floats above them. */
+/** Panels get the width the sidebar leaves; the copilot floats above them. */
 function DashboardBody() {
   const { isOpen } = useCopilot();
 
@@ -41,18 +43,24 @@ function DashboardBody() {
 }
 
 /**
- * The dashboard shell.
+ * The dashboard shell — a sidebar for reaching a panel directly, the grid
+ * itself, and the copilot floating above it.
  *
  * Everything sits inside the copilot provider so a buy button on a panel and a
- * sentence in the chat reach the same place — one transcript, one approval.
+ * sentence in the chat reach the same place: one transcript, one approval.
  */
 export function DashboardLayout() {
   return (
-    <CopilotProvider>
-      <div className="dashboard-shell">
-        <DashboardHeader />
-        <DashboardBody />
-      </div>
-    </CopilotProvider>
+    <SidebarProvider>
+      <DashboardSidebar />
+      <SidebarInset>
+        <CopilotProvider>
+          <div className="dashboard-shell">
+            <DashboardHeader />
+            <DashboardBody />
+          </div>
+        </CopilotProvider>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
