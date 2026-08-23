@@ -1,19 +1,35 @@
-import * as React from "react"
+"use client";
 
-const MOBILE_BREAKPOINT = 768
+import { useSyncExternalStore } from "react";
 
-export function useIsMobile() {
-  const [isMobile, setIsMobile] = React.useState<boolean | undefined>(undefined)
+const MOBILE_BREAKPOINT = 768;
 
-  React.useEffect(() => {
-    const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
-    const onChange = () => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    }
-    mql.addEventListener("change", onChange)
-    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    return () => mql.removeEventListener("change", onChange)
-  }, [])
+/**
+ * Whether the viewport is phone-sized.
+ *
+ * Rewritten from the version shadcn ships, which set state inside an effect and
+ * so both tripped React's cascading-render rule and briefly reported the wrong
+ * answer on first paint. A media query is external state, so it is read as
+ * external state.
+ */
 
-  return !!isMobile
+const mobileQuery = `(max-width: ${MOBILE_BREAKPOINT - 1}px)`;
+
+function subscribe(notify: () => void): () => void {
+  const query = window.matchMedia(mobileQuery);
+  query.addEventListener("change", notify);
+  return () => query.removeEventListener("change", notify);
+}
+
+function readIsMobile(): boolean {
+  return window.matchMedia(mobileQuery).matches;
+}
+
+/** The server has no viewport, so it assumes desktop. */
+function readServerIsMobile(): boolean {
+  return false;
+}
+
+export function useIsMobile(): boolean {
+  return useSyncExternalStore(subscribe, readIsMobile, readServerIsMobile);
 }
