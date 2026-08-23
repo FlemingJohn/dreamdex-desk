@@ -257,3 +257,13 @@
 .copilot-header-draggable button {
   cursor: pointer;
 }
+
+/* Minimised: a header bar that keeps the conversation but reclaims the space. */
+
+.copilot-panel.is-minimized {
+  height: auto;
+}
+
+.copilot-panel.is-minimized .copilot-header {
+  border-bottom: 0;
+}

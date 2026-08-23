@@ -64,6 +64,14 @@
   gap: 1rem;
   padding: 1.25rem;
   min-width: 0;
+  /* Right padding is set inline to leave room for the copilot. */
+  transition: padding-right 0.18s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel-grid {
+    transition: none;
+  }
 }
 
 /*
