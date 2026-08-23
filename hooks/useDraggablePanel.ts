@@ -33,6 +33,18 @@ export function useDraggablePanel() {
       return;
     }
 
+    /**
+     * Leave the header's own controls alone.
+     *
+     * Capturing the pointer below routes every later pointer event to the
+     * header, so a press that began on a button would never produce a click on
+     * it — the button would look dead. Anything interactive has to opt out of
+     * dragging before the capture happens.
+     */
+    if ((event.target as HTMLElement).closest("button, a, input")) {
+      return;
+    }
+
     const bounds = panel.getBoundingClientRect();
     grabOffset.current = {
       x: event.clientX - bounds.left,
