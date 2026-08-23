@@ -28,6 +28,7 @@ export function SettlementQualityPanel() {
     <PanelShell
       title="Settlement quality"
       description="Void rate and oracle agreement per series — a void refunds both sides at 0.5."
+      askQuestion="Which series carry void risk, and how should that change what I pay?"
     >
       {isLoading ? (
         <Skeleton className="h-40 w-full" />
