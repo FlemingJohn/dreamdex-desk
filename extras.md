@@ -1,9 +1,24 @@
 # DreamDEX Desk - Bot Builder Architectures
 
-This document outlines two potential pathways for integrating a **Bot Builder** into the DreamDEX Desk platform. Currently, the AI Copilot acts as an *advisor* (proposing trades that require manual approval). A Bot Builder would evolve the platform into an automated trading engine, aligning perfectly with the hackathon's focus on AI-agentic applications.
+This document outlines potential pathways for integrating a **Bot Builder** into the DreamDEX Desk platform. 
+
+Adding an automated trading engine fundamentally changes the risk profile of the app. The core of DreamDEX Desk's current pitch is **human-in-the-loop safety** (two human acts between the AI model and any spent funds). A bot is the deliberate opposite. Therefore, the Bot Builder must be a clearly separate, explicitly opted-into mode equipped with strict risk limits and a global kill switch.
+
+## The Architecture: Operator Session Keys
+To trade while the user is away from the keyboard, the engine cannot rely on Wagmi for execution, as Wagmi requires a human to approve every signature prompt. Instead, we use the protocol's native **OperatorPermissionsRegistry**.
+
+**The Honest Architecture:**
+1. **Delegation:** The user's main wallet (cold wallet) signs a transaction granting a temporary "hot" key specific permissions (`placeOrderFor`, `cancelOrderFor`).
+2. **Safety:** This hot operator key can trade on the user's behalf but is *structurally unable to withdraw funds*. Deposits, withdrawals, and redemptions remain strictly `msg.sender`-scoped to the cold owner wallet.
+3. **Execution:** The background engine runs holding the hot operator key, executing automated trades seamlessly. 
+4. **Revocation:** The user can instantly revoke the operator key's permissions at any time via a Kill Switch. 
+
+*"The bot can trade but provably cannot steal."*
+
+---
 
 ## Option 1: AI-Prompted Bots (Agentic Approach)
-Leverage the existing Azure OpenAI copilot to allow users to build automated trading algorithms using natural language.
+Leverage the existing copilot to allow users to build automated trading algorithms using natural language.
 
 **The Workflow:**
 1. **User Prompt:** "Create a bot that buys 10 UP contracts whenever my Calibration 'Edge' is greater than 3%."
@@ -15,8 +30,7 @@ Leverage the existing Azure OpenAI copilot to allow users to build automated tra
      "action": { "type": "buy", "side": "up", "size": 10 }
    }
    ```
-3. **Execution Engine:** A background React hook (or Node.js worker) continuously subscribes to the `@somnia-chain/markets-sdk` WebSockets. Every second, it evaluates the active JSON rules against the live data.
-4. **Execution:** When a condition is met, the engine automatically fires the transaction via Wagmi, allowing the user to trade while away from the keyboard.
+3. **Execution Engine:** A background process evaluates active rules against the live data stream. When triggered, it fires the transaction using the **delegated hot operator key**.
 
 ## Option 2: Visual "If-This-Then-That" (IFTTT) Panel
 A more traditional, UI-driven approach for users who prefer strict visual configuration over chat prompts.
@@ -27,8 +41,4 @@ A more traditional, UI-driven approach for users who prefer strict visual config
    - **Trigger Metrics:** [Time Remaining, Liquidity Spread, Calibration Edge, Price, Void Rate]
    - **Operators:** [<, >, =, crosses above, crosses below]
    - **Actions:** [Market Buy, Snipe (IOC), Mint Set, Sell Inventory]
-3. **Example Rule:** `IF [Time Remaining] < [5 mins] AND [Price of UP] < [0.20], THEN [Buy 50 UP]`
-4. **Execution Engine:** Similar to the Agentic approach, these visual rules are compiled into a config object and evaluated every tick against the live market data stream.
-
-## Why Build This?
-Adding a Bot Builder dramatically increases the project's **Business & Ecosystem Impact** score. It transitions the application from a read-only analytics terminal into an automated wealth-generation tool that continuously drives volume to the DreamDEX smart contracts.
+3. **Execution Engine:** Similar to the Agentic approach, these visual rules are compiled and evaluated every tick, executed seamlessly via the operator key.

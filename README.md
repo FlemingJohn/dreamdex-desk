@@ -1,5 +1,12 @@
 # DreamDEX Desk
 
+**🏆 Somnia × DreamDEX Event Contracts Hackathon Submission**
+> 🎥 **[Watch the 3-Minute Demo Video Here](#)** *(Placeholder - Add your link!)*
+> 📑 **[Read the Pitch Deck](#)** *(Placeholder - Add your link!)*
+**Somnia × DreamDEX Event Contracts Hackathon Submission**
+> **[Watch the 3-Minute Demo Video Here](#)** *(Placeholder - Add your link!)*
+> **[Read the Pitch Deck](#)** *(Placeholder - Add your link!)*
+
 Analytics and an approval-gated AI copilot for **DreamDEX event contracts** on
 Somnia. Every figure is read from the chain — there is no mock data anywhere in
 the app.
@@ -155,6 +162,24 @@ numbers is worse than one that admits them:
   on the oracle explorer. Every receipt links to it.
 - **Unrealised P&L and order distance from the touch** — both need a book read per
   position.
+
+## Hackathon Impact (For the Judges)
+
+Built to directly address the Somnia Hackathon criteria:
+1. **Innovation:** Moves beyond standard swap UI. An approval-gated AI that acts as a risk manager and calculates true market edge.
+2. **Technical Depth:** 100% coverage of the `@somnia-chain/markets-sdk` (minting, merging, sweeping, and streaming live on-chain state).
+3. **Business Ecosystem:** Proves market honesty via the Calibration curve and surfaces Stranded Funds, bringing institutional trust and liquidity to the DEX.
+
+## Future: The Bot Builder & Session Keys
+
+The desk currently enforces a strict "human-in-the-loop" safety model. A fully automated trading bot is the deliberate opposite. 
+
+The planned **Bot Builder** resolves this tension without compromising security by utilizing the protocol's native `OperatorPermissionsRegistry`:
+1. The user's cold wallet grants a temporary "hot" session key limited to `placeOrderFor` and `cancelOrderFor`.
+2. The automated engine trades in the background using this hot key.
+3. The hot key is structurally unable to withdraw or steal funds; all escrow remains `msg.sender`-scoped.
+
+*"The bot trades while you sleep, but provably cannot steal."*
 
 ## Notes
 
