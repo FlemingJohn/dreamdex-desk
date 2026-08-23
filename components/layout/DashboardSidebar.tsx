@@ -29,9 +29,12 @@ export function DashboardSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader>
-        <div className="flex flex-col gap-0.5 px-2 py-1.5 group-data-[collapsible=icon]:hidden">
-          <span className="text-sm font-semibold tracking-tight">DreamDEX Desk</span>
-          <span className="text-xs text-muted-foreground">Shannon testnet</span>
+        <div className="flex items-center gap-2 px-1 py-1.5">
+          <DeskLogo className="size-7 shrink-0 rounded-md" />
+          <div className="flex flex-col gap-0.5 group-data-[collapsible=icon]:hidden">
+            <span className="text-sm font-semibold tracking-tight">DreamDEX Desk</span>
+            <span className="text-xs text-muted-foreground">Shannon testnet</span>
+          </div>
         </div>
       </SidebarHeader>
 
