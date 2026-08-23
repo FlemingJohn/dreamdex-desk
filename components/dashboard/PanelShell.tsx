@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { AskAboutButton } from "@/components/dashboard/AskAboutButton";
 import {
   Card,
   CardContent,
@@ -12,6 +13,8 @@ interface PanelShellProps {
   description: string;
   /** Optional badge or control shown on the right of the header. */
   headerExtra?: ReactNode;
+  /** When set, shows an Ask button that puts this question to the copilot. */
+  askQuestion?: string;
   children: ReactNode;
   className?: string;
 }
@@ -28,6 +31,7 @@ export function PanelShell({
   title,
   description,
   headerExtra,
+  askQuestion,
   children,
   className,
 }: PanelShellProps) {
@@ -36,7 +40,10 @@ export function PanelShell({
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
-        {headerExtra ? <div className="ml-auto">{headerExtra}</div> : null}
+        <div className="ml-auto flex items-center gap-1">
+          {headerExtra}
+          {askQuestion ? <AskAboutButton question={askQuestion} /> : null}
+        </div>
       </CardHeader>
       <CardContent>{children}</CardContent>
     </Card>
