@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { DeskLogo } from "@/components/layout/DeskLogo";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { findRouteByPath } from "@/lib/dashboardRoutes";
 
@@ -20,8 +19,6 @@ export function DashboardHeader() {
     <header className="dashboard-header">
       <SidebarTrigger />
       <Separator orientation="vertical" className="h-5" />
-
-      <DeskLogo className="size-8 shrink-0 rounded-md" />
 
       <div className="flex flex-col gap-0.5">
         <h1 className="text-sm font-semibold tracking-tight">
