@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useClaimWinnings } from "@/hooks/useClaimWinnings";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { formatCountdown } from "@/lib/format/formatCountdown";
 import { formatPercent } from "@/lib/format/formatPercent";
@@ -20,12 +21,14 @@ import { formatSignedUsdc, formatUsdc } from "@/lib/format/formatUsdc";
  */
 export function PortfolioPanel() {
   const { portfolio, isLoading, unclaimedTotal } = usePortfolio();
+  const { claimAll, isClaiming, result } = useClaimWinnings();
 
   return (
     <PanelShell
       title="Your book"
       description="Open positions, realised performance, and winnings the protocol still owes you."
       className="panel-grid-wide"
+      askQuestion="Walk me through my open positions and anything I have not claimed."
     >
       {isLoading || !portfolio ? (
         <Skeleton className="h-40 w-full" />
@@ -80,8 +83,17 @@ export function PortfolioPanel() {
                 across {portfolio.unclaimedWinnings.length} settled markets
               </span>
             </span>
-            <Button size="sm">Claim all</Button>
+            <Button size="sm" onClick={claimAll} disabled={isClaiming || !!result}>
+              {isClaiming ? "Claiming..." : result ? "Claimed" : "Claim all"}
+            </Button>
           </div>
+
+          {result ? (
+            <p className="panel-note">
+              Swept {result.marketsSwept} settled markets for{" "}
+              {formatUsdc(result.claimedUsdc)} · {result.transactionHash}
+            </p>
+          ) : null}
         </div>
       )}
     </PanelShell>
