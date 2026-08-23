@@ -13,6 +13,7 @@ import {
   SidebarMenuItem,
   SidebarRail,
 } from "@/components/ui/sidebar";
+import { DeskLogo } from "@/components/layout/DeskLogo";
 import { dashboardRoutes } from "@/lib/dashboardRoutes";
 
 /**
