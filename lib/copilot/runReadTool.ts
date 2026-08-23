@@ -5,6 +5,14 @@ import { getMockPortfolio, sumUnclaimedWinnings } from "@/lib/mock/mockPortfolio
 import { getMockOrderBook } from "@/lib/mock/mockOrderBook";
 import { getMockProbabilityPath } from "@/lib/mock/mockProbabilityPath";
 import { buildOracleExplorerUrl, getMockSettlementReceipts } from "@/lib/mock/mockSettlementReceipt";
+import {
+  getMockStuckMarkets,
+  getMockVaultFallbacks,
+  sumVaultFallbacks,
+} from "@/lib/mock/mockStuckMarkets";
+import { getMockWorkingOrders, sumEscrowedCollateral } from "@/lib/mock/mockWorkingOrders";
+import { computeBothSides } from "@/lib/analytics/computeExpectedValue";
+import { computePositionSize } from "@/lib/analytics/computePositionSize";
 import { getMockSettlementQuality } from "@/lib/mock/mockSettlementQuality";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
 
@@ -53,6 +61,57 @@ export function runReadTool(name: ReadToolName, args: Record<string, unknown> = 
         ...receipt,
         explorerUrl: buildOracleExplorerUrl(receipt.oracleQuestionId),
       }));
+
+    case "listWorkingOrders": {
+      const orders = getMockWorkingOrders();
+      return { orders, escrowedTotalUsdc: sumEscrowedCollateral(orders) };
+    }
+
+    case "findEdge": {
+      /**
+       * The same arithmetic the edge panel runs: price every open market
+       * against the calibration curve, keep the better side, and size it.
+       */
+      const buckets = getMockCalibration();
+      const bankrollUsdc = 500;
+
+      return getMockMarkets(currentSecond())
+        .filter((market) => market.status === "trading")
+        .map((market) => {
+          const sides = computeBothSides(buckets, market.upProbability);
+          const better =
+            (sides.up?.expectedValuePerContract ?? -1) >
+            (sides.down?.expectedValuePerContract ?? -1)
+              ? { side: "up", assessment: sides.up }
+              : { side: "down", assessment: sides.down };
+
+          if (!better.assessment) {
+            return { marketId: market.marketId, note: "outside every measured band" };
+          }
+
+          return {
+            marketId: market.marketId,
+            asset: market.asset,
+            windowLength: market.windowLength,
+            bestSide: better.side,
+            ...better.assessment,
+            recommendedStake: computePositionSize(
+              better.assessment.pricePaid,
+              better.assessment.trueProbability,
+              bankrollUsdc
+            ),
+          };
+        });
+    }
+
+    case "findStrandedFunds": {
+      const vaultFallbacks = getMockVaultFallbacks();
+      return {
+        stuckMarkets: getMockStuckMarkets(),
+        vaultFallbacks,
+        vaultTotalUsdc: sumVaultFallbacks(vaultFallbacks),
+      };
+    }
 
     default:
       return { error: `Unknown tool: ${name}` };
