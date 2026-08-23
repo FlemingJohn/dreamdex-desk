@@ -46,12 +46,12 @@ export function DashboardLayout() {
 
       <div className="dashboard-body">
         {isOpen ? (
-          <ResizablePanelGroup direction="horizontal">
-            <ResizablePanel defaultSize={100 - defaultWidthPercent} minSize={40}>
+          <ResizablePanelGroup orientation="horizontal">
+            <ResizablePanel defaultSize={String(100 - defaultWidthPercent)} minSize="40">
               {panels}
             </ResizablePanel>
             <ResizableHandle withHandle />
-            <ResizablePanel defaultSize={defaultWidthPercent} minSize={20} maxSize={45}>
+            <ResizablePanel defaultSize={String(defaultWidthPercent)} minSize="20" maxSize="45">
               <CopilotPanel onClose={toggle} />
             </ResizablePanel>
           </ResizablePanelGroup>
