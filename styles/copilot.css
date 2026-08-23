@@ -216,3 +216,20 @@
   gap: 0.375rem;
   padding: 0 1rem 0.75rem;
 }
+
+/* Dragging the panel around. */
+
+.copilot-header-draggable {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.copilot-header-draggable.is-dragging {
+  cursor: grabbing;
+}
+
+/* Buttons in the header stay clickable rather than starting a drag. */
+.copilot-header-draggable button {
+  cursor: pointer;
+}
