@@ -26,6 +26,7 @@ export function OrderBookPanel() {
     <PanelShell
       title="Order book"
       description="Resting size on the shared Up/Down book. An ask is also somebody offering Down."
+      askQuestion="Is there enough depth here to fill a real size without moving the price?"
       headerExtra={
         <Badge variant="secondary">
           {market.asset} {market.windowLength}
