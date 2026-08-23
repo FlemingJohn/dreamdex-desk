@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import type { ChatMessage } from "@/types/copilot";
+import type { ChatMessage, TradeProposal } from "@/types/copilot";
 
 const WELCOME_MESSAGE: ChatMessage = {
   id: "welcome",
@@ -118,5 +118,40 @@ export function useCopilotChat() {
     );
   }, []);
 
-  return { messages, isThinking, sendMessage, approveProposal, rejectProposal };
+  /**
+   * Drops a proposal straight into the transcript.
+   *
+   * Used when the trader acts by pointing at a panel instead of typing. The
+   * proposal still lands in the same place and still waits for the same
+   * approval — the only difference is that no model was involved in forming it.
+   */
+  const addProposal = useCallback((proposal: TradeProposal, text: string) => {
+    setMessages((current) => [
+      ...current,
+      {
+        id: createMessageId(),
+        role: "assistant",
+        text,
+        proposal,
+        proposalOutcome: "pending",
+      },
+    ]);
+  }, []);
+
+  const addNote = useCallback((text: string) => {
+    setMessages((current) => [
+      ...current,
+      { id: createMessageId(), role: "assistant", text },
+    ]);
+  }, []);
+
+  return {
+    messages,
+    isThinking,
+    sendMessage,
+    approveProposal,
+    rejectProposal,
+    addProposal,
+    addNote,
+  };
 }
