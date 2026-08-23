@@ -298,8 +298,16 @@ actual book.
 
 ### Tier 3 — funded wallet, real transactions
 
-Press **Test funds** in the header for test collateral. Each action raises one
-wallet prompt.
+Two assets, in this order — minting collateral is itself a transaction, so gas
+has to come first.
+
+1. Click **Funds** in the header, copy your address.
+2. Claim STT from the
+   [Google Cloud faucet](https://cloud.google.com/application/web3/faucet/somnia/shannon)
+   (the Shannon-specific path).
+3. Back in the panel, **Refresh**, then **Mint 10,000 test USDC**.
+
+Each action below raises one wallet prompt.
 
 | Feature | Where | Expect |
 | --- | --- | --- |

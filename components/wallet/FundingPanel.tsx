@@ -12,8 +12,13 @@ import { Separator } from "@/components/ui/separator";
 import { useFundingStatus, TEST_USDC_SHANNON } from "@/hooks/useFundingStatus";
 import { useWriteActions } from "@/hooks/useWriteActions";
 
-const STT_FAUCET = "https://testnet.somnia.network/";
-const GOOGLE_FAUCET = "https://cloud.google.com/web3/faucet?network=somnia";
+/**
+ * The Google Cloud faucet is first because it is the one that reliably works.
+ * The path is Shannon-specific — the shorter query-string form the DreamDEX
+ * docs give no longer resolves.
+ */
+const GAS_FAUCET = "https://cloud.google.com/application/web3/faucet/somnia/shannon";
+const GAS_FAUCET_BACKUP = "https://testnet.somnia.network/";
 const EXPLORER = "https://shannon-explorer.somnia.network";
 
 /**
@@ -116,14 +121,14 @@ export function FundingPanel() {
             </p>
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" asChild>
-                <a href={STT_FAUCET} target="_blank" rel="noreferrer">
-                  Somnia faucet
+                <a href={GAS_FAUCET} target="_blank" rel="noreferrer">
+                  Get STT
                   <ExternalLink className="size-3" />
                 </a>
               </Button>
               <Button variant="ghost" size="sm" asChild>
-                <a href={GOOGLE_FAUCET} target="_blank" rel="noreferrer">
-                  Backup
+                <a href={GAS_FAUCET_BACKUP} target="_blank" rel="noreferrer">
+                  Backup faucet
                   <ExternalLink className="size-3" />
                 </a>
               </Button>
