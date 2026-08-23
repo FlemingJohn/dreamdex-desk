@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
-import { FaucetButton } from "@/components/layout/FaucetButton";
+import { FundingPanel } from "@/components/wallet/FundingPanel";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { ConnectWalletButton } from "@/components/wallet/ConnectWalletButton";
 import { findRouteByPath } from "@/lib/dashboardRoutes";
@@ -31,7 +31,7 @@ export function DashboardHeader() {
       </div>
 
       <div className="ml-auto flex items-center gap-2">
-        <FaucetButton />
+        <FundingPanel />
         <ConnectWalletButton />
       </div>
 

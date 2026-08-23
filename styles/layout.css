@@ -91,3 +91,96 @@
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+/*
+ * Funding a fresh wallet — the address to copy, and the two balances that
+ * decide whether anything can be signed yet.
+ */
+
+.funding-address {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 0.375rem;
+}
+
+.funding-address-value {
+  flex: 1;
+  min-width: 0;
+  overflow-x: auto;
+  white-space: nowrap;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--text-xs);
+  scrollbar-width: none;
+}
+
+.funding-address-value::-webkit-scrollbar {
+  display: none;
+}
+
+.funding-step {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.funding-step-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.funding-step-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* The number carries the order, which is the part people get wrong. */
+.funding-step-number {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.125rem;
+  height: 1.125rem;
+  border-radius: 999px;
+  background: var(--muted);
+  border: 1px solid var(--border);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 0.6875rem;
+  color: var(--muted-foreground);
+}
+
+.funding-balance {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--font-weight-medium);
+}
+
+.funding-step-note {
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  color: var(--muted-foreground);
+  margin: 0;
+}
+
+.funding-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  font-size: var(--text-xs);
+  color: var(--muted-foreground);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.funding-link:hover {
+  color: var(--foreground);
+}
