@@ -4,6 +4,8 @@ import { PanelShell } from "@/components/dashboard/PanelShell";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCalibration } from "@/hooks/useCalibration";
+import { useCopilot } from "@/components/copilot/CopilotProvider";
+import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import { isOverconfident } from "@/lib/mock/mockCalibration";
 import { formatPercent, formatPointGap } from "@/lib/format/formatPercent";
 
@@ -18,14 +20,35 @@ import { formatPercent, formatPointGap } from "@/lib/format/formatPercent";
  */
 export function CalibrationPanel() {
   const { buckets, isLoading, windowsMeasured } = useCalibration();
+  const { proposeTrade } = useCopilot();
+  const { tradingMarkets } = useLiveMarkets();
+
+  /**
+   * An overconfident band means the favourite is overpriced, so the edge is in
+   * selling it — which here means buying the other side of whichever open
+   * market currently sits in that band.
+   */
+  function tradeThisEdge(rangeStart: number, rangeEnd: number) {
+    const marketInBand = tradingMarkets.find(
+      (market) => market.upProbability >= rangeStart && market.upProbability < rangeEnd
+    );
+    if (!marketInBand) {
+      return;
+    }
+    proposeTrade(
+      marketInBand.marketId,
+      "down",
+      10,
+      `Fading the favourite in the ${rangeStart.toFixed(2)}–${rangeEnd.toFixed(2)} band, where settled windows came in short of the price.`
+    );
+  }
 
   return (
     <PanelShell
       title="Calibration"
       description="When the market says 65%, does it happen 65% of the time?"
-      headerExtra={
-        <Badge variant="secondary">{windowsMeasured} windows</Badge>
-      }
+      headerExtra={<Badge variant="secondary">{windowsMeasured} windows</Badge>}
+      askQuestion="Where is the market least calibrated, and how would I trade that?"
     >
       {isLoading ? (
         <Skeleton className="h-48 w-full" />
@@ -34,9 +57,24 @@ export function CalibrationPanel() {
           <div>
             {buckets.map((bucket) => {
               const overconfident = isOverconfident(bucket);
+              const hasMarketInBand = tradingMarkets.some(
+                (market) =>
+                  market.upProbability >= bucket.rangeStart &&
+                  market.upProbability < bucket.rangeEnd
+              );
+              const isTradeable = overconfident && hasMarketInBand;
 
               return (
-                <div className="calibration-row" key={bucket.rangeStart}>
+                <div
+                  className={`calibration-row ${isTradeable ? "calibration-row-tradeable" : ""}`}
+                  key={bucket.rangeStart}
+                  onClick={
+                    isTradeable
+                      ? () => tradeThisEdge(bucket.rangeStart, bucket.rangeEnd)
+                      : undefined
+                  }
+                  title={isTradeable ? "Trade this edge" : undefined}
+                >
                   <span className="calibration-band">
                     {bucket.rangeStart.toFixed(2)}–{bucket.rangeEnd.toFixed(2)}
                   </span>
