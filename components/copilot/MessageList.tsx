@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { ApprovalCard } from "@/components/copilot/ApprovalCard";
+import { CopilotVisual } from "@/components/copilot/CopilotVisual";
 import { ReasoningTrail } from "@/components/copilot/ReasoningTrail";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import type { ChatMessage } from "@/types/copilot";
@@ -43,6 +44,8 @@ export function MessageList({
             {message.toolCalls && message.toolCalls.length > 0 ? (
               <ReasoningTrail toolCalls={message.toolCalls} />
             ) : null}
+
+            {message.visual ? <CopilotVisual visual={message.visual} /> : null}
 
             <p className="copilot-message-text">{message.text}</p>
 

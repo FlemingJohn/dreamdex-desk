@@ -8,9 +8,10 @@ import { buildTradeProposal } from "@/lib/copilot/buildTradeProposal";
 import { runReadTool, summarizeReadResult } from "@/lib/copilot/runReadTool";
 import { isSafeWriteTool, runWriteTool } from "@/lib/copilot/runWriteTool";
 import { COPILOT_SYSTEM_PROMPT } from "@/lib/copilot/systemPrompt";
+import { buildVisual } from "@/lib/copilot/buildVisual";
 import { READ_TOOL_NAMES, copilotTools } from "@/lib/copilot/toolDefinitions";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
-import type { ChatMessage, ToolCallRecord } from "@/types/copilot";
+import type { ChatMessage, CopilotVisual, ToolCallRecord } from "@/types/copilot";
 
 /**
  * Sizing assumes this until the desk reads the connected wallet's balance.
@@ -56,6 +57,11 @@ export async function POST(request: Request) {
   ];
 
   const toolCallsMade: ToolCallRecord[] = [];
+  /**
+   * The last read that produced something drawable. Later reads win, because
+   * the copilot's final answer is usually about the thing it looked at last.
+   */
+  let visual: CopilotVisual | null = null;
 
   for (let round = 0; round < MAX_TOOL_ROUNDS; round += 1) {
     const completion = await client.chat.completions.create({
@@ -77,6 +83,7 @@ export async function POST(request: Request) {
         role: "assistant",
         text: reply.content ?? "",
         toolCalls: toolCallsMade,
+        visual: visual ?? undefined,
       } satisfies Partial<ChatMessage>);
     }
 
@@ -152,6 +159,7 @@ export async function POST(request: Request) {
 
       if (isReadTool(toolName)) {
         const result = await runReadTool(toolName, toolArguments);
+        visual = buildVisual(toolName, result) ?? visual;
         toolCallsMade.push({
           step: toolCallsMade.length + 1,
           name: toolName,
