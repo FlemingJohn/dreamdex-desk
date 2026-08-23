@@ -156,3 +156,21 @@
 .value-negative {
   color: var(--side-down);
 }
+
+/* Settlement receipts — the oracle's working, one row per price source. */
+
+.receipt-sources {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  gap: 0.25rem 1rem;
+  font-size: 0.75rem;
+}
+
+.receipt-source {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background: var(--muted);
+}
