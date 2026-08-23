@@ -14,6 +14,7 @@ import {
 import { useWorkingOrders } from "@/hooks/useWorkingOrders";
 import { isStaleOrder } from "@/lib/mock/mockWorkingOrders";
 import { formatCountdown } from "@/lib/format/formatCountdown";
+import { formatWindow } from "@/lib/format/formatWindow";
 import { formatProbability } from "@/lib/format/formatProbability";
 import { formatUsdc } from "@/lib/format/formatUsdc";
 
@@ -77,7 +78,7 @@ export function WorkingOrdersPanel() {
                 return (
                   <TableRow key={order.orderId}>
                     <TableCell className="font-medium">
-                      {order.asset} {order.windowLength}
+                      {order.asset} {formatWindow(order.windowSeconds)}
                     </TableCell>
                     <TableCell className={order.side === "up" ? "side-up" : "side-down"}>
                       {order.side.toUpperCase()}

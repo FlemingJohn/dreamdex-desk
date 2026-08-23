@@ -13,7 +13,7 @@ export function getMockLiquidity(): LiquidityBreakdown[] {
   return [
     {
       asset: "BTC",
-      windowLength: "15m",
+      windowSeconds: 900,
       windowsMeasured: 412,
       mintPairShare: 0.68,
       directFillShare: 0.27,
@@ -24,7 +24,7 @@ export function getMockLiquidity(): LiquidityBreakdown[] {
     },
     {
       asset: "BTC",
-      windowLength: "1h",
+      windowSeconds: 3600,
       windowsMeasured: 104,
       mintPairShare: 0.51,
       directFillShare: 0.44,
@@ -35,7 +35,7 @@ export function getMockLiquidity(): LiquidityBreakdown[] {
     },
     {
       asset: "ETH",
-      windowLength: "15m",
+      windowSeconds: 900,
       windowsMeasured: 412,
       mintPairShare: 0.74,
       directFillShare: 0.21,
@@ -46,7 +46,7 @@ export function getMockLiquidity(): LiquidityBreakdown[] {
     },
     {
       asset: "ETH",
-      windowLength: "1h",
+      windowSeconds: 3600,
       windowsMeasured: 104,
       mintPairShare: 0.58,
       directFillShare: 0.37,

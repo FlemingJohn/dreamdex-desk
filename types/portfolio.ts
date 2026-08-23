@@ -4,12 +4,12 @@
  * terms here.
  */
 
-import type { Asset, Side, WindowLength } from "./market";
+import type { Asset, Side, WindowSeconds } from "./market";
 
 export interface OpenPosition {
   marketId: string;
   asset: Asset;
-  windowLength: WindowLength;
+  windowSeconds: WindowSeconds;
   side: Side;
   contracts: number;
   /** Probability paid when the position was opened. */
@@ -28,7 +28,7 @@ export interface OpenPosition {
 export interface UnclaimedWinning {
   marketId: string;
   asset: Asset;
-  windowLength: WindowLength;
+  windowSeconds: WindowSeconds;
   amountUsdc: number;
   settledAt: string;
 }

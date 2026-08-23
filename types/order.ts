@@ -3,7 +3,7 @@
  * stranded on this venue.
  */
 
-import type { Asset, Side, WindowLength } from "./market";
+import type { Asset, Side, WindowSeconds } from "./market";
 
 /**
  * An order sitting on the book waiting to fill.
@@ -16,7 +16,7 @@ export interface WorkingOrder {
   orderId: string;
   marketId: string;
   asset: Asset;
-  windowLength: WindowLength;
+  windowSeconds: WindowSeconds;
   side: Side;
   /** Price this order is resting at, as a probability. */
   probability: number;
@@ -40,7 +40,7 @@ export interface WorkingOrder {
 export interface StuckMarket {
   marketId: string;
   asset: Asset;
-  windowLength: WindowLength;
+  windowSeconds: WindowSeconds;
   oracleQuestionId: string;
   /** "answered" means the oracle replied and the market has not caught up. */
   problem: "answered-not-resolved" | "settlement-window-lapsed";
@@ -64,7 +64,7 @@ export interface StuckMarket {
 export interface VaultFallback {
   poolAddress: string;
   asset: Asset;
-  windowLength: WindowLength;
+  windowSeconds: WindowSeconds;
   amountUsdc: number;
   strandedAt: string;
 }

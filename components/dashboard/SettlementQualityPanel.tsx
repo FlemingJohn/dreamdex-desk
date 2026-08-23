@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/table";
 import { useSettlementQuality } from "@/hooks/useSettlementQuality";
 import { formatPercent } from "@/lib/format/formatPercent";
+import { formatWindow } from "@/lib/format/formatWindow";
 
 /**
  * How reliably does each series settle?
@@ -47,9 +48,9 @@ export function SettlementQualityPanel() {
             </TableHeader>
             <TableBody>
               {rows.map((row) => (
-                <TableRow key={`${row.asset}-${row.windowLength}`}>
+                <TableRow key={`${row.asset}-${formatWindow(row.windowSeconds)}`}>
                   <TableCell className="font-medium">
-                    {row.asset} {row.windowLength}
+                    {row.asset} {formatWindow(row.windowSeconds)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums text-muted-foreground">
                     {row.settledCount}

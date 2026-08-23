@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { useStrandedFunds } from "@/hooks/useStrandedFunds";
 import { buildOracleExplorerUrl } from "@/lib/mock/mockSettlementReceipt";
 import { formatUsdc } from "@/lib/format/formatUsdc";
+import { formatWindow } from "@/lib/format/formatWindow";
 
 function describeAge(seconds: number): string {
   const minutes = Math.round(seconds / 60);
@@ -64,7 +65,7 @@ export function StrandedFundsPanel() {
               <div className="panel-metric-row">
                 <span className="text-sm">
                   <span className="font-medium">
-                    {market.asset} {market.windowLength}
+                    {market.asset} {formatWindow(market.windowSeconds)}
                   </span>{" "}
                   <span className="text-muted-foreground">
                     expired {describeAge(market.expiredAgoSeconds)} ·{" "}

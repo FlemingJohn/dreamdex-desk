@@ -1,12 +1,22 @@
 /**
- * A DreamDEX event contract asks one question: does the asset close the window
- * at or above the price it opened at? There are no strike prices — the line is
- * always the window's own opening price.
+ * A DreamDEX event contract asks one question: will the asset be at or above a
+ * line when the window closes?
+ *
+ * What that line is depends on the venue. dreamDEX's own venue compares against
+ * the window's opening price and carries no strike. The venues live on Shannon
+ * do set an explicit strike, which the market row reports — so a strike is
+ * optional here rather than absent.
  */
 
-export type Asset = "BTC" | "ETH";
+export type Asset = string;
 
-export type WindowLength = "15m" | "1h";
+/**
+ * How long a window runs, in seconds.
+ *
+ * Live venues run 60, 300, 900, 3600, 14400 and 86400 — a minute through to a
+ * day — so this is a number rather than a fixed set of labels.
+ */
+export type WindowSeconds = number;
 
 export type Side = "up" | "down";
 
@@ -19,12 +29,14 @@ export type MarketStatus = "listed" | "trading" | "locked" | "resolved" | "voide
 
 export interface LiveMarket {
   marketId: string;
+  /** The pool this market currently trades on. Recycled between windows. */
+  poolAddress: string;
+  /** Which venue listed it — a deployment hosts several side by side. */
+  venueId: string;
   asset: Asset;
-  windowLength: WindowLength;
-  /** The line to beat — the underlying price when this window opened. */
-  openingPrice: number;
-  /** Where the underlying is trading right now. */
-  currentPrice: number;
+  windowSeconds: WindowSeconds;
+  /** The price the close is measured against, when the venue sets one. */
+  strike: number | null;
   /** Market's implied chance of UP winning, between 0 and 1. */
   upProbability: number;
   /** Gap between the best bid and best ask, in probability terms. */
@@ -36,6 +48,8 @@ export interface LiveMarket {
   tradeCount: number;
   secondsRemaining: number;
   status: MarketStatus;
+  /** Links a settlement to the sources that decided it. */
+  oracleQuestionId: string | null;
 }
 
 /** One price level on the order book. Prices are probabilities. */
@@ -49,3 +63,6 @@ export interface OrderBook {
   bids: OrderBookLevel[];
   asks: OrderBookLevel[];
 }
+
+/** Whether the figures on screen came from the chain or from stand-in data. */
+export type DataSource = "live" | "mock";

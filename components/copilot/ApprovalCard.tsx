@@ -2,6 +2,7 @@ import { Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatProbability } from "@/lib/format/formatProbability";
 import { formatUsdc } from "@/lib/format/formatUsdc";
+import { formatWindow } from "@/lib/format/formatWindow";
 import type { TradeProposal, ProposalOutcome } from "@/types/copilot";
 
 interface ApprovalCardProps {
@@ -40,7 +41,7 @@ export function ApprovalCard({
           <span className={proposal.side === "up" ? "side-up" : "side-down"}>
             {proposal.side.toUpperCase()}
           </span>{" "}
-          · {proposal.asset} {proposal.windowLength}
+          · {proposal.asset} {formatWindow(proposal.windowSeconds)}
         </p>
 
         <div className="approval-figures">

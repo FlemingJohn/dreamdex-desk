@@ -3,6 +3,7 @@
 import { useCopilot } from "@/components/copilot/CopilotProvider";
 import { Button } from "@/components/ui/button";
 import type { LiveMarket } from "@/types/market";
+import { formatWindow } from "@/lib/format/formatWindow";
 
 /** A sensible starting size — the trader adjusts before approving. */
 const DEFAULT_CONTRACTS = 10;
@@ -22,7 +23,7 @@ export function TradeButtons({ market }: TradeButtonsProps) {
   const { proposeTrade } = useCopilot();
 
   const describe = (side: "up" | "down") =>
-    `${side === "up" ? "Up" : "Down"} on ${market.asset} ${market.windowLength}, from the market list.`;
+    `${side === "up" ? "Up" : "Down"} on ${market.asset} ${formatWindow(market.windowSeconds)}, from the market list.`;
 
   return (
     <div className="flex justify-end gap-1">

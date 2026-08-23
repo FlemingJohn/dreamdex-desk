@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import { useOrderBook } from "@/hooks/useOrderBook";
 import { formatProbability } from "@/lib/format/formatProbability";
+import { formatWindow } from "@/lib/format/formatWindow";
 
 /**
  * Where the resting orders actually sit.
@@ -30,7 +31,7 @@ export function OrderBookPanel() {
       askQuestion="Is there enough depth here to fill a real size without moving the price?"
       headerExtra={
         <Badge variant="secondary">
-          {market.asset} {market.windowLength}
+          {market.asset} {formatWindow(market.windowSeconds)}
         </Badge>
       }
     >

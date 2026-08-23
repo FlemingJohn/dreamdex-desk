@@ -4,6 +4,7 @@ import { PanelShell } from "@/components/dashboard/PanelShell";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLiquidity } from "@/hooks/useLiquidity";
 import { formatPercent } from "@/lib/format/formatPercent";
+import { formatWindow } from "@/lib/format/formatWindow";
 import { formatProbability } from "@/lib/format/formatProbability";
 
 /**
@@ -30,10 +31,10 @@ export function LiquidityPanel() {
       ) : (
         <div className="flex flex-col gap-4">
           {breakdowns.map((breakdown) => (
-            <div key={`${breakdown.asset}-${breakdown.windowLength}`}>
+            <div key={`${breakdown.asset}-${formatWindow(breakdown.windowSeconds)}`}>
               <div className="panel-metric-row mb-1.5">
                 <span className="text-sm font-medium">
-                  {breakdown.asset} {breakdown.windowLength}
+                  {breakdown.asset} {formatWindow(breakdown.windowSeconds)}
                 </span>
                 <span className="panel-metric-value text-sm">
                   {formatPercent(breakdown.mintPairShare)} mint-a-pair

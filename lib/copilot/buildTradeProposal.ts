@@ -97,7 +97,7 @@ export function buildTradeProposal({
     proposalId: `${marketId}-${Date.now()}`,
     marketId,
     asset: market.asset,
-    windowLength: market.windowLength,
+    windowSeconds: market.windowSeconds,
     side,
     contracts: sizedContracts,
     probability,

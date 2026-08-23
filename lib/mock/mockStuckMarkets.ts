@@ -16,7 +16,7 @@ export function getMockStuckMarkets(): StuckMarket[] {
     {
       marketId: "0x8455",
       asset: "ETH",
-      windowLength: "15m",
+      windowSeconds: 900,
       oracleQuestionId: "418804",
       problem: "answered-not-resolved",
       remedy: "pokeOracle",
@@ -27,7 +27,7 @@ export function getMockStuckMarkets(): StuckMarket[] {
     {
       marketId: "0x8431",
       asset: "BTC",
-      windowLength: "15m",
+      windowSeconds: 900,
       oracleQuestionId: "418779",
       problem: "settlement-window-lapsed",
       remedy: "voidExpired",
@@ -49,14 +49,14 @@ export function getMockVaultFallbacks(): VaultFallback[] {
     {
       poolAddress: "0x7c4e...91ab",
       asset: "BTC",
-      windowLength: "15m",
+      windowSeconds: 900,
       amountUsdc: 9.5,
       strandedAt: "2026-08-21T14:05:00Z",
     },
     {
       poolAddress: "0x3f18...02cd",
       asset: "ETH",
-      windowLength: "1h",
+      windowSeconds: 3600,
       amountUsdc: 4.25,
       strandedAt: "2026-08-20T09:40:00Z",
     },

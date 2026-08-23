@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/table";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import { formatCountdown, isClosingSoon } from "@/lib/format/formatCountdown";
+import { formatStrike, formatWindow } from "@/lib/format/formatWindow";
 import { formatProbability } from "@/lib/format/formatProbability";
 import { formatUsdcCompact } from "@/lib/format/formatUsdc";
 
@@ -43,7 +44,7 @@ export function LiveMarketsPanel() {
             <TableRow>
               <TableHead>Market</TableHead>
               <TableHead>Line</TableHead>
-              <TableHead>Now</TableHead>
+              <TableHead className="text-right">Window</TableHead>
               <TableHead className="text-right">Up</TableHead>
               <TableHead className="text-right">Spread</TableHead>
               <TableHead className="text-right">Depth</TableHead>
@@ -54,21 +55,18 @@ export function LiveMarketsPanel() {
           </TableHeader>
           <TableBody>
             {tradingMarkets.map((market) => {
-              const movedUp = market.currentPrice >= market.openingPrice;
               const closingSoon = isClosingSoon(market.secondsRemaining);
 
               return (
                 <TableRow key={market.marketId}>
                   <TableCell className="font-medium">
-                    {market.asset} {market.windowLength}
+                    {market.asset} {formatWindow(market.windowSeconds)}
                   </TableCell>
                   <TableCell className="tabular-nums text-muted-foreground">
-                    {market.openingPrice.toLocaleString()}
+                    {formatStrike(market.strike)}
                   </TableCell>
-                  <TableCell
-                    className={`tabular-nums ${movedUp ? "side-up" : "side-down"}`}
-                  >
-                    {market.currentPrice.toLocaleString()}
+                  <TableCell className="text-right tabular-nums text-muted-foreground">
+                    {formatWindow(market.windowSeconds)}
                   </TableCell>
                   <TableCell className="text-right tabular-nums font-medium">
                     {formatProbability(market.upProbability)}

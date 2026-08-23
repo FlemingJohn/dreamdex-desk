@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useClaimWinnings } from "@/hooks/useClaimWinnings";
 import { usePortfolio } from "@/hooks/usePortfolio";
 import { formatCountdown } from "@/lib/format/formatCountdown";
+import { formatWindow } from "@/lib/format/formatWindow";
 import { formatPercent } from "@/lib/format/formatPercent";
 import { formatProbability } from "@/lib/format/formatProbability";
 import { formatSignedUsdc, formatUsdc } from "@/lib/format/formatUsdc";
@@ -39,7 +40,7 @@ export function PortfolioPanel() {
               <div className="panel-metric-row" key={position.marketId}>
                 <span className="text-sm">
                   <span className="font-medium">
-                    {position.asset} {position.windowLength}
+                    {position.asset} {formatWindow(position.windowSeconds)}
                   </span>{" "}
                   <span className={position.side === "up" ? "side-up" : "side-down"}>
                     {position.side.toUpperCase()}

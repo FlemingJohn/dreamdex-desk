@@ -11,6 +11,7 @@ import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import { computeBothSides } from "@/lib/analytics/computeExpectedValue";
 import { computePositionSize } from "@/lib/analytics/computePositionSize";
 import { formatPercent } from "@/lib/format/formatPercent";
+import { formatWindow } from "@/lib/format/formatWindow";
 import { formatProbability } from "@/lib/format/formatProbability";
 import { formatSignedUsdc, formatUsdc } from "@/lib/format/formatUsdc";
 
@@ -93,7 +94,7 @@ export function EdgePanel() {
               <div className="panel-metric-row">
                 <span className="text-sm">
                   <span className="font-medium">
-                    {market.asset} {market.windowLength}
+                    {market.asset} {formatWindow(market.windowSeconds)}
                   </span>{" "}
                   <span className={side === "up" ? "side-up" : "side-down"}>
                     {side.toUpperCase()}
@@ -133,7 +134,7 @@ export function EdgePanel() {
                         market.marketId,
                         side,
                         size.contracts,
-                        `${size.contracts} ${side.toUpperCase()} on ${market.asset} ${market.windowLength}. Costs ${formatProbability(assessment.pricePaid)}, worth ${formatProbability(assessment.trueProbability)} over ${assessment.sampleSize} settled windows — an edge of ${formatSignedUsdc(assessment.expectedValuePerContract)} per contract.`
+                        `${size.contracts} ${side.toUpperCase()} on ${market.asset} ${formatWindow(market.windowSeconds)}. Costs ${formatProbability(assessment.pricePaid)}, worth ${formatProbability(assessment.trueProbability)} over ${assessment.sampleSize} settled windows — an edge of ${formatSignedUsdc(assessment.expectedValuePerContract)} per contract.`
                       )
                     }
                   >

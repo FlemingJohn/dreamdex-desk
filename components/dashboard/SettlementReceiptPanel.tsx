@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useSettlementReceipts } from "@/hooks/useSettlementReceipts";
 import { buildOracleExplorerUrl } from "@/lib/mock/mockSettlementReceipt";
+import { formatWindow } from "@/lib/format/formatWindow";
 
 /**
  * Why did that market resolve the way it did?
@@ -38,7 +39,7 @@ export function SettlementReceiptPanel() {
               <div className="panel-metric-row mb-2">
                 <span className="text-sm">
                   <span className="font-medium">
-                    {receipt.asset} {receipt.windowLength}
+                    {receipt.asset} {formatWindow(receipt.windowSeconds)}
                   </span>{" "}
                   <span className="text-muted-foreground">
                     opened {receipt.openingPrice.toLocaleString()} · closed{" "}

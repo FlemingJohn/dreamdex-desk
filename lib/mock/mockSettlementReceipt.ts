@@ -13,7 +13,7 @@ export function getMockSettlementReceipts(): SettlementReceipt[] {
     {
       marketId: "0x8470",
       asset: "BTC",
-      windowLength: "15m",
+      windowSeconds: 900,
       oracleQuestionId: "418822",
       openingPrice: 114712,
       settlementPrice: 114801,
@@ -32,7 +32,7 @@ export function getMockSettlementReceipts(): SettlementReceipt[] {
     {
       marketId: "0x8466",
       asset: "ETH",
-      windowLength: "15m",
+      windowSeconds: 900,
       oracleQuestionId: "418819",
       openingPrice: 4188,
       settlementPrice: 4181,

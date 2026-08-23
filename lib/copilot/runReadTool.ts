@@ -92,7 +92,7 @@ export function runReadTool(name: ReadToolName, args: Record<string, unknown> = 
           return {
             marketId: market.marketId,
             asset: market.asset,
-            windowLength: market.windowLength,
+            windowSeconds: market.windowSeconds,
             bestSide: better.side,
             ...better.assessment,
             recommendedStake: computePositionSize(

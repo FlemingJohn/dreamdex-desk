@@ -6,7 +6,7 @@
  * approve, so the model cannot move funds on its own.
  */
 
-import type { Asset, Side, WindowLength } from "./market";
+import type { Asset, Side, WindowSeconds } from "./market";
 
 export type MessageRole = "user" | "assistant";
 
@@ -34,7 +34,7 @@ export interface TradeProposal {
   proposalId: string;
   marketId: string;
   asset: Asset;
-  windowLength: WindowLength;
+  windowSeconds: WindowSeconds;
   side: Side;
   contracts: number;
   /** Price after snapping to the venue's tick grid. */

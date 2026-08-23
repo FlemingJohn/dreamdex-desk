@@ -4,7 +4,7 @@
  * is what makes these measurements possible at all.
  */
 
-import type { Asset, WindowLength } from "./market";
+import type { Asset, WindowSeconds } from "./market";
 
 /**
  * One row of the calibration curve. Groups settled windows by what the market
@@ -41,7 +41,7 @@ export interface ProbabilityPathPoint {
  */
 export interface LiquidityBreakdown {
   asset: Asset;
-  windowLength: WindowLength;
+  windowSeconds: WindowSeconds;
   windowsMeasured: number;
   mintPairShare: number;
   directFillShare: number;
@@ -58,7 +58,7 @@ export interface LiquidityBreakdown {
  */
 export interface SettlementQualityRow {
   asset: Asset;
-  windowLength: WindowLength;
+  windowSeconds: WindowSeconds;
   settledCount: number;
   voidRate: number;
   averageSourcesAgreeing: number;
@@ -83,7 +83,7 @@ export interface OracleSource {
 export interface SettlementReceipt {
   marketId: string;
   asset: Asset;
-  windowLength: WindowLength;
+  windowSeconds: WindowSeconds;
   oracleQuestionId: string;
   /** The line the close was measured against. */
   openingPrice: number;

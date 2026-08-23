@@ -13,7 +13,7 @@ export function getMockSettlementQuality(): SettlementQualityRow[] {
   return [
     {
       asset: "BTC",
-      windowLength: "15m",
+      windowSeconds: 900,
       settledCount: 412,
       voidRate: 0.005,
       averageSourcesAgreeing: 4.9,
@@ -22,7 +22,7 @@ export function getMockSettlementQuality(): SettlementQualityRow[] {
     },
     {
       asset: "BTC",
-      windowLength: "1h",
+      windowSeconds: 3600,
       settledCount: 104,
       voidRate: 0,
       averageSourcesAgreeing: 5,
@@ -31,7 +31,7 @@ export function getMockSettlementQuality(): SettlementQualityRow[] {
     },
     {
       asset: "ETH",
-      windowLength: "15m",
+      windowSeconds: 900,
       settledCount: 412,
       voidRate: 0.012,
       averageSourcesAgreeing: 4.6,
@@ -40,7 +40,7 @@ export function getMockSettlementQuality(): SettlementQualityRow[] {
     },
     {
       asset: "ETH",
-      windowLength: "1h",
+      windowSeconds: 3600,
       settledCount: 104,
       voidRate: 0,
       averageSourcesAgreeing: 4.9,
