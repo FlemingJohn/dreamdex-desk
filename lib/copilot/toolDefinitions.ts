@@ -16,6 +16,8 @@ export const READ_TOOL_NAMES = [
   "getLiquidity",
   "getSettlementQuality",
   "getPortfolio",
+  "getOrderBook",
+  "explainSettlement",
 ] as const;
 
 export const WRITE_TOOL_NAMES = ["proposeTrade"] as const;
@@ -75,6 +77,30 @@ export const copilotTools: ChatCompletionTool[] = [
       name: "getPortfolio",
       description:
         "The trader's open positions, realised performance, and any winnings the protocol still owes them.",
+      parameters: { type: "object", properties: {}, required: [] },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "getOrderBook",
+      description:
+        "Resting bids and asks for one market, quoted in Up terms. Use it to check whether a size can actually be filled before proposing a trade.",
+      parameters: {
+        type: "object",
+        properties: {
+          marketId: { type: "string", description: "Market id from listMarkets." },
+        },
+        required: ["marketId"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "explainSettlement",
+      description:
+        "Why recently settled markets resolved the way they did — every price source the oracle asked, what each returned, the median, and how many had to agree. Use this whenever someone asks why they lost or whether a result was fair.",
       parameters: { type: "object", properties: {}, required: [] },
     },
   },
