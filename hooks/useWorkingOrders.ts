@@ -57,13 +57,34 @@ export function useWorkingOrders() {
     [refresh, write]
   );
 
+  /**
+   * Clears stale orders in one transaction per pool rather than one per order.
+   *
+   * Batch cancel is best-effort: an order that filled in the race window is
+   * skipped instead of failing the whole pull, which is exactly what you want
+   * when clearing a ladder.
+   */
   const cancelStaleOrders = useCallback(async () => {
+    if (staleOrders.length === 0) {
+      return;
+    }
     setBusyId("all");
     try {
+      const byPool = new Map<string, string[]>();
       for (const order of staleOrders) {
-        await write.cancelOrder(order.orderId, order.poolAddress);
+        byPool.set(order.poolAddress, [
+          ...(byPool.get(order.poolAddress) ?? []),
+          order.orderId,
+        ]);
       }
-      setLastMessage(`Cancelled ${staleOrders.length} stale orders.`);
+
+      for (const [poolAddress, orderIds] of byPool) {
+        const outcome = await write.cancelOrders(poolAddress, orderIds);
+        setLastMessage(outcome.message);
+        if (!outcome.ok) {
+          break;
+        }
+      }
       await refresh();
     } finally {
       setBusyId(null);

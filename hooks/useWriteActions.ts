@@ -202,15 +202,126 @@ export function useWriteActions() {
     [exchange, run]
   );
 
+  /**
+   * Turns collateral into a matched pair of positions.
+   *
+   * One unit of collateral mints one Up and one Down, and merging the pair
+   * returns the collateral. Because exactly one side pays out at settlement, a
+   * complete set is always worth exactly one — so this is a swap, not a bet.
+   *
+   * The reason it matters is narrower than it looks. You can already quote both
+   * sides with no inventory at all, because two opposite-side buyers cross
+   * without a seller and the pool mints the pair from their combined collateral.
+   * What minting unlocks is *selling*: you can only sell what you hold, there is
+   * no naked short, so without a complete set you can post bids and never an
+   * offer.
+   */
+  const mintSet = useCallback(
+    (poolAddress: string, contracts: number) =>
+      run(`mint-${poolAddress}`, async () => {
+        const result = await exchange!.trader.mintSet({
+          pool: poolAddress as `0x${string}`,
+          amount: toRawUnits(contracts),
+        });
+        return {
+          ok: true,
+          transactionHash: result.hash,
+          message: `Minted ${contracts} Up and ${contracts} Down. You can now sell either side.`,
+        };
+      }),
+    [exchange, run]
+  );
+
+  /** Merges a matched pair back into collateral. */
+  const burnSet = useCallback(
+    (poolAddress: string, contracts: number) =>
+      run(`burn-${poolAddress}`, async () => {
+        const result = await exchange!.trader.burnSet({
+          pool: poolAddress as `0x${string}`,
+          amount: toRawUnits(contracts),
+        });
+        return {
+          ok: true,
+          transactionHash: result.hash,
+          message: `Merged ${contracts} pairs back into ${contracts} collateral.`,
+        };
+      }),
+    [exchange, run]
+  );
+
+  /**
+   * Cancels several orders in one transaction.
+   *
+   * Best-effort by design: an order that filled in the race window is skipped
+   * rather than failing the whole pull, which is what you want when clearing a
+   * ladder. One signature instead of one per order.
+   */
+  const cancelOrders = useCallback(
+    (poolAddress: string, orderIds: string[]) =>
+      run("cancel-many", async () => {
+        const result = await exchange!.trader.cancelOrders({
+          pool: poolAddress as `0x${string}`,
+          orderIds,
+        });
+        /**
+         * A false outcome means the contract skipped that id — already filled,
+         * already gone, or not the signer's. It cannot tell a benign race from
+         * a mistake, so the count is reported without interpreting it.
+         */
+        const cancelled = result.outcomes.filter((outcome) => outcome.cancelled).length;
+        return {
+          ok: true,
+          transactionHash: result.hash,
+          message: `Cancelled ${cancelled} of ${orderIds.length}. Escrow is back in your wallet.`,
+        };
+      }),
+    [exchange, run]
+  );
+
+  /**
+   * Posts an offer rather than a bid.
+   *
+   * Only possible against outcome tokens you already hold, which is why this
+   * sits next to minting — mint a set, then sell the side you do not want.
+   */
+  const sellSide = useCallback(
+    (poolAddress: string, side: "up" | "down", contracts: number, probability: number) =>
+      run(`sell-${poolAddress}`, async () => {
+        const expiresAt = BigInt(Math.floor(Date.now() / 1000) + 300) * 1_000_000_000n;
+        const result = await exchange!.trader.placeOrder({
+          pool: poolAddress as `0x${string}`,
+          side: side === "up" ? "SELL_YES" : "SELL_NO",
+          price: toRawUnits(probability),
+          quantity: toRawUnits(contracts),
+          // Post-only, so a quote never pays the spread it is trying to earn.
+          orderType: 3,
+          expireTimestampNs: expiresAt,
+        });
+        if (result.receipt?.status === "reverted") {
+          return { ok: false, message: "The offer reverted on-chain." };
+        }
+        return {
+          ok: true,
+          transactionHash: result.hash,
+          message: `Offered ${contracts} ${side.toUpperCase()} at ${probability.toFixed(3)}.`,
+        };
+      }),
+    [exchange, run]
+  );
+
   return {
     canSign: exchange !== null,
     pending,
     placeProposal,
     cancelOrder,
+    cancelOrders,
     reduceOrder,
     redeem,
     pokeOracle,
     voidExpired,
     claimTestFunds,
+    mintSet,
+    burnSet,
+    sellSide,
   };
 }
