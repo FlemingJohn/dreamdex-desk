@@ -32,10 +32,10 @@ export function LiquidityPanel() {
           {breakdowns.map((breakdown) => (
             <div key={`${breakdown.asset}-${breakdown.windowLength}`}>
               <div className="panel-metric-row mb-1.5">
-                <span className="text-base font-medium">
+                <span className="text-sm font-medium">
                   {breakdown.asset} {breakdown.windowLength}
                 </span>
-                <span className="panel-metric-value text-base">
+                <span className="panel-metric-value text-sm">
                   {formatPercent(breakdown.mintPairShare)} mint-a-pair
                 </span>
               </div>

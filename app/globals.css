@@ -9,6 +9,25 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * The type scale, raised one notch from Tailwind's defaults.
+ *
+ * Tailwind ships text-xs at 12px, which is too small to scan a table of
+ * probabilities for any length of time. Redefining the scale here — rather
+ * than bumping each class at every call site — means the desk's own panels and
+ * shadcn's components stay in step, because both read these same tokens. It
+ * also survives re-running `shadcn add`, which would overwrite edits made
+ * inside those components.
+ */
+@theme {
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5rem;
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.625rem;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);

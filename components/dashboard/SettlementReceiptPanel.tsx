@@ -36,7 +36,7 @@ export function SettlementReceiptPanel() {
               {index > 0 ? <Separator className="mb-4" /> : null}
 
               <div className="panel-metric-row mb-2">
-                <span className="text-base">
+                <span className="text-sm">
                   <span className="font-medium">
                     {receipt.asset} {receipt.windowLength}
                   </span>{" "}
@@ -54,7 +54,7 @@ export function SettlementReceiptPanel() {
                     {receipt.outcome.toUpperCase()}
                   </Badge>
                   <a
-                    className="text-sm inline-flex items-center gap-1 underline underline-offset-2"
+                    className="text-xs inline-flex items-center gap-1 underline underline-offset-2"
                     href={buildOracleExplorerUrl(receipt.oracleQuestionId)}
                     target="_blank"
                     rel="noreferrer"

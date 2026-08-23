@@ -82,7 +82,7 @@
 }
 
 .copilot-title {
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -99,7 +99,7 @@
 }
 
 .copilot-message-role {
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--font-weight-semibold);
   letter-spacing: 0.08em;
   text-transform: uppercase;
@@ -108,7 +108,7 @@
 }
 
 .copilot-message-text {
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   line-height: 1.6;
   white-space: pre-wrap;
 }
@@ -132,7 +132,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-family: var(--font-mono, ui-monospace, monospace);
   color: var(--muted-foreground);
 }
@@ -153,7 +153,7 @@
 .approval-card-header {
   padding: 0.5rem 0.75rem;
   background: color-mix(in srgb, var(--signal-warning) 12%, transparent);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-weight: var(--font-weight-bold);
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -168,7 +168,7 @@
 }
 
 .approval-summary {
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   font-weight: var(--font-weight-semibold);
 }
 
@@ -176,7 +176,7 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.375rem 1rem;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   font-variant-numeric: tabular-nums;
 }
 
@@ -190,7 +190,7 @@
   gap: 0.25rem;
   padding-top: 0.5rem;
   border-top: 1px solid var(--border);
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
 }
 
 .approval-check-row {
@@ -219,7 +219,7 @@
 
 .approval-settled {
   padding: 0.625rem 0.75rem;
-  font-size: var(--text-sm);
+  font-size: var(--text-xs);
   color: var(--muted-foreground);
   border-top: 1px solid var(--border);
 }

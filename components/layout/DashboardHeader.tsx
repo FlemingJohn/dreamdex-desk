@@ -21,10 +21,10 @@ export function DashboardHeader() {
       <Separator orientation="vertical" className="h-5" />
 
       <div className="flex flex-col gap-0.5">
-        <h1 className="text-base font-semibold tracking-tight">
+        <h1 className="text-sm font-semibold tracking-tight">
           {route?.label ?? "Desk"}
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-xs text-muted-foreground">
           {route?.description ?? "Event contract analytics on Somnia"}
         </p>
       </div>
