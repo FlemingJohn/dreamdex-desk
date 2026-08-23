@@ -35,8 +35,10 @@ export function usePanelSize() {
   }, []);
 
   /**
-   * The panel is anchored bottom-left, so the handle sits at its top-right:
-   * dragging right widens it, and dragging up makes it taller.
+   * The panel is anchored bottom-right, so the handle sits at its top-left:
+   * dragging left widens it, and dragging up makes it taller. Measuring from
+   * the anchored edges keeps the panel still while you drag, instead of
+   * sliding away from the pointer.
    */
   const continueResize = useCallback(
     (event: ReactPointerEvent<HTMLElement>) => {
@@ -52,7 +54,7 @@ export function usePanelSize() {
       const bounds = panel.getBoundingClientRect();
 
       setSize({
-        width: clamp(event.clientX - bounds.left, SMALLEST.width, window.innerWidth - 32),
+        width: clamp(bounds.right - event.clientX, SMALLEST.width, window.innerWidth - 32),
         height: clamp(bounds.bottom - event.clientY, SMALLEST.height, window.innerHeight - 32),
       });
     },

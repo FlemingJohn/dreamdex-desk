@@ -37,7 +37,7 @@ export function PortfolioPanel() {
           <div className="flex flex-col gap-2">
             {portfolio.openPositions.map((position) => (
               <div className="panel-metric-row" key={position.marketId}>
-                <span className="text-sm">
+                <span className="text-base">
                   <span className="font-medium">
                     {position.asset} {position.windowLength}
                   </span>{" "}
@@ -51,7 +51,7 @@ export function PortfolioPanel() {
                   </span>
                 </span>
                 <span
-                  className={`panel-metric-value text-sm ${
+                  className={`panel-metric-value text-base ${
                     position.unrealizedUsdc >= 0 ? "value-positive" : "value-negative"
                   }`}
                 >
@@ -68,7 +68,7 @@ export function PortfolioPanel() {
               Realised over 7 days · {portfolio.fillCountLastWeek} fills · win rate{" "}
               {formatPercent(portfolio.winRateLastWeek)}
             </span>
-            <span className="panel-metric-value text-sm value-positive">
+            <span className="panel-metric-value text-base value-positive">
               {formatSignedUsdc(portfolio.realizedUsdcLastWeek)}
             </span>
           </div>
@@ -76,7 +76,7 @@ export function PortfolioPanel() {
           <Separator />
 
           <div className="panel-metric-row">
-            <span className="flex items-center gap-2 text-sm">
+            <span className="flex items-center gap-2 text-base">
               <Badge variant="destructive">unclaimed</Badge>
               <span className="font-medium">{formatUsdc(unclaimedTotal)}</span>
               <span className="panel-note">
