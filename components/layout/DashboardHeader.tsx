@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { FaucetButton } from "@/components/layout/FaucetButton";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { findRouteByPath } from "@/lib/dashboardRoutes";
 
@@ -29,9 +30,10 @@ export function DashboardHeader() {
         </p>
       </div>
 
-      <Badge variant="secondary" className="ml-auto">
-        mock data
-      </Badge>
+      <div className="ml-auto flex items-center gap-2">
+        <FaucetButton />
+        <Badge variant="secondary">mock data</Badge>
+      </div>
 
       <ThemeToggle />
     </header>
