@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/card";
 
 interface PanelShellProps {
+  /** Anchor the sidebar navigates to. */
+  id: string;
   title: string;
   description: string;
   /** Optional badge or control shown on the right of the header. */
@@ -28,6 +30,7 @@ interface PanelShellProps {
  * the panel from its header alone.
  */
 export function PanelShell({
+  id,
   title,
   description,
   headerExtra,
@@ -36,7 +39,7 @@ export function PanelShell({
   className,
 }: PanelShellProps) {
   return (
-    <Card className={className}>
+    <Card id={id} className={className}>
       <CardHeader>
         <CardTitle>{title}</CardTitle>
         <CardDescription>{description}</CardDescription>
