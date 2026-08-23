@@ -35,6 +35,7 @@ export function WorkingOrdersPanel() {
     escrowedTotal,
     isConnected,
     busyId,
+    lastMessage,
     cancelOrder,
     cancelStaleOrders,
     reduceOrder,
@@ -114,7 +115,7 @@ export function WorkingOrdersPanel() {
                             size="sm"
                             disabled={isBusy}
                             onClick={() =>
-                              reduceOrder(order.orderId, Math.floor(remaining / 2))
+                              reduceOrder(order.orderId, order.poolAddress, Math.floor(remaining / 2))
                             }
                             title="Halve the size, keeping its place in the queue"
                           >
@@ -125,7 +126,7 @@ export function WorkingOrdersPanel() {
                           variant="outline"
                           size="sm"
                           disabled={isBusy}
-                          onClick={() => cancelOrder(order.orderId)}
+                          onClick={() => cancelOrder(order.orderId, order.poolAddress)}
                         >
                           Cancel
                         </Button>
@@ -136,6 +137,8 @@ export function WorkingOrdersPanel() {
               })}
             </TableBody>
           </Table>
+
+          {lastMessage ? <p className="panel-note mt-3">{lastMessage}</p> : null}
 
           {staleOrders.length > 0 ? (
             <div className="panel-metric-row mt-3">

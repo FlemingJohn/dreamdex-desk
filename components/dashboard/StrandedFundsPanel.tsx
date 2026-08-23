@@ -32,7 +32,7 @@ function describeAge(seconds: number): string {
  * meant to be kept honest.
  */
 export function StrandedFundsPanel() {
-  const { stuckMarkets, busyId, unblockMarket } = useStrandedFunds();
+  const { stuckMarkets, busyId, lastMessage, unblockMarket } = useStrandedFunds();
 
   const lockedTotal = stuckMarkets.reduce((total, market) => total + market.lockedUsdc, 0);
   const hasNothingToDo = stuckMarkets.length === 0;
@@ -58,6 +58,7 @@ export function StrandedFundsPanel() {
         </p>
       ) : (
         <div className="flex flex-col gap-4">
+          {lastMessage ? <p className="panel-note">{lastMessage}</p> : null}
           {stuckMarkets.map((market) => (
             <div key={market.marketId}>
               <div className="panel-metric-row">
@@ -80,7 +81,9 @@ export function StrandedFundsPanel() {
                   size="sm"
                   variant="outline"
                   disabled={busyId === market.marketId}
-                  onClick={() => unblockMarket(market.marketId, market.remedy)}
+                  onClick={() =>
+                    unblockMarket(market.marketId, market.remedy, market.oracleQuestionId)
+                  }
                 >
                   {market.remedy === "pokeOracle" ? "Pull the answer through" : "Void it"}
                 </Button>

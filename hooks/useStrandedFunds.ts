@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useSettlementInfo } from "@/hooks/useSettlementInfo";
+import { useWriteActions } from "@/hooks/useWriteActions";
 
 /**
  * Markets that expired without paying out.
@@ -13,23 +14,41 @@ import { useSettlementInfo } from "@/hooks/useSettlementInfo";
 export function useStrandedFunds() {
   const { stuckMarkets, isLoading, error, refresh } = useSettlementInfo();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [lastMessage, setLastMessage] = useState<string | null>(null);
 
+  const write = useWriteActions();
+
+  /**
+   * Pushes a settled market through to payout.
+   *
+   * pokeOracle pulls an answer the oracle has already posted; voidExpired
+   * applies once the settlement window has lapsed with no answer, and refunds
+   * both sides at 0.5. Either works on any market, including ones the trader
+   * has no stake in — that is deliberate, so funds are never stranded behind
+   * one party's permission.
+   */
   const unblockMarket = useCallback(
-    async (marketId: string, remedy: "pokeOracle" | "voidExpired") => {
+    async (
+      marketId: string,
+      remedy: "pokeOracle" | "voidExpired",
+      oracleQuestionId: string
+    ) => {
       setBusyId(marketId);
       try {
-        await fetch("/api/settlement", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: remedy, marketId }),
-        });
-        await refresh();
+        const outcome =
+          remedy === "pokeOracle"
+            ? await write.pokeOracle(marketId, oracleQuestionId)
+            : await write.voidExpired(marketId);
+        setLastMessage(outcome.message);
+        if (outcome.ok) {
+          await refresh();
+        }
       } finally {
         setBusyId(null);
       }
     },
-    [refresh]
+    [refresh, write]
   );
 
-  return { stuckMarkets, busyId, unblockMarket, isLoading, error };
+  return { stuckMarkets, busyId, lastMessage, unblockMarket, isLoading, error };
 }

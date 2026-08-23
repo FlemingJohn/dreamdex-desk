@@ -2,6 +2,7 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useWallet } from "@/hooks/useWallet";
+import { useWriteActions } from "@/hooks/useWriteActions";
 import type { WorkingOrder } from "@/types/order";
 
 /**
@@ -22,6 +23,7 @@ export function isStaleOrder(order: WorkingOrder): boolean {
 export function useWorkingOrders() {
   const { workingOrders, isConnected, isLoading, refresh } = useWallet();
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [lastMessage, setLastMessage] = useState<string | null>(null);
 
   const escrowedTotal = useMemo(
     () => workingOrders.reduce((total, order) => total + order.escrowedUsdc, 0),
@@ -32,48 +34,60 @@ export function useWorkingOrders() {
     [workingOrders]
   );
 
-  const send = useCallback(
-    async (busyKey: string, body: Record<string, unknown>) => {
-      setBusyId(busyKey);
+  const write = useWriteActions();
+
+  /**
+   * Cancelling and shrinking need no approval card — both can only return
+   * collateral, so the worst case is wanting the order back. They still raise a
+   * wallet prompt, because every write does.
+   */
+  const cancelOrder = useCallback(
+    async (orderId: string, poolAddress: string) => {
+      setBusyId(orderId);
       try {
-        await fetch("/api/orders", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
-        });
-        await refresh();
+        const outcome = await write.cancelOrder(orderId, poolAddress);
+        setLastMessage(outcome.message);
+        if (outcome.ok) {
+          await refresh();
+        }
       } finally {
         setBusyId(null);
       }
     },
-    [refresh]
+    [refresh, write]
   );
 
-  const cancelOrder = useCallback(
-    (orderId: string) => send(orderId, { action: "cancel", orderIds: [orderId] }),
-    [send]
-  );
-
-  /**
-   * Batch cancel is best-effort by design — an order that filled in the race
-   * window is skipped rather than failing the whole pull.
-   */
-  const cancelStaleOrders = useCallback(() => {
-    const orderIds = staleOrders.map((order) => order.orderId);
-    if (orderIds.length === 0) {
-      return Promise.resolve();
+  const cancelStaleOrders = useCallback(async () => {
+    setBusyId("all");
+    try {
+      for (const order of staleOrders) {
+        await write.cancelOrder(order.orderId, order.poolAddress);
+      }
+      setLastMessage(`Cancelled ${staleOrders.length} stale orders.`);
+      await refresh();
+    } finally {
+      setBusyId(null);
     }
-    return send("all", { action: "cancel", orderIds });
-  }, [send, staleOrders]);
+  }, [refresh, staleOrders, write]);
 
   /**
-   * Shrinks an order rather than replacing it, which keeps its place in the
-   * price-time queue. Re-placing a smaller order would send it to the back.
+   * Shrinks rather than replaces, which keeps the order's place in the
+   * price-time queue. Cancelling and re-placing would send it to the back.
    */
   const reduceOrder = useCallback(
-    (orderId: string, newContracts: number) =>
-      send(orderId, { action: "reduce", orderId, newContracts }),
-    [send]
+    async (orderId: string, poolAddress: string, newContracts: number) => {
+      setBusyId(orderId);
+      try {
+        const outcome = await write.reduceOrder(orderId, poolAddress, newContracts);
+        setLastMessage(outcome.message);
+        if (outcome.ok) {
+          await refresh();
+        }
+      } finally {
+        setBusyId(null);
+      }
+    },
+    [refresh, write]
   );
 
   return {
@@ -83,6 +97,7 @@ export function useWorkingOrders() {
     isConnected,
     isLoading,
     busyId,
+    lastMessage,
     cancelOrder,
     cancelStaleOrders,
     reduceOrder,

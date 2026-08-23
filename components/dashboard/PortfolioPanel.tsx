@@ -21,8 +21,8 @@ import { formatSignedUsdc, formatUsdc } from "@/lib/format/formatUsdc";
  * list — so this money is invisible everywhere else and simply sits there.
  */
 export function PortfolioPanel() {
-  const { portfolio, isLoading, unclaimedTotal } = usePortfolio();
-  const { claimAll, isClaiming, result } = useClaimWinnings();
+  const { portfolio, isConnected, isLoading, unclaimedTotal } = usePortfolio();
+  const { claimAll, isClaiming, message, canSign } = useClaimWinnings();
 
   return (
     <PanelShell
@@ -31,7 +31,11 @@ export function PortfolioPanel() {
       description="Open positions, realised performance, and winnings the protocol still owes you."
       askQuestion="Walk me through my open positions and anything I have not claimed."
     >
-      {isLoading || !portfolio ? (
+      {!isConnected ? (
+        <p className="panel-note">
+          Connect a wallet to see your positions and anything the protocol owes you.
+        </p>
+      ) : isLoading || !portfolio ? (
         <Skeleton className="h-40 w-full" />
       ) : (
         <div className="flex flex-col gap-4">
@@ -84,17 +88,16 @@ export function PortfolioPanel() {
                 across {portfolio.unclaimedWinnings.length} settled markets
               </span>
             </span>
-            <Button size="sm" onClick={claimAll} disabled={isClaiming || !!result}>
-              {isClaiming ? "Claiming..." : result ? "Claimed" : "Claim all"}
+            <Button
+              size="sm"
+              onClick={claimAll}
+              disabled={isClaiming || !canSign || unclaimedTotal === 0}
+            >
+              {isClaiming ? "Redeeming..." : "Claim all"}
             </Button>
           </div>
 
-          {result ? (
-            <p className="panel-note">
-              Swept {result.marketsSwept} settled markets for{" "}
-              {formatUsdc(result.claimedUsdc)} · {result.transactionHash}
-            </p>
-          ) : null}
+          {message ? <p className="panel-note">{message}</p> : null}
         </div>
       )}
     </PanelShell>

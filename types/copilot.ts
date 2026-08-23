@@ -33,6 +33,8 @@ export interface ProposalCheck {
 export interface TradeProposal {
   proposalId: string;
   marketId: string;
+  /** The pool this market currently trades on, needed to sign. */
+  poolAddress: string;
   asset: Asset;
   windowSeconds: WindowSeconds;
   side: Side;

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
+import { useWriteActions } from "@/hooks/useWriteActions";
 import type { ChatMessage, TradeProposal } from "@/types/copilot";
 
 const WELCOME_MESSAGE: ChatMessage = {
@@ -23,6 +24,7 @@ function createMessageId(): string {
  * triggers by pressing approve.
  */
 export function useCopilotChat() {
+  const { placeProposal } = useWriteActions();
   const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
   const [isThinking, setIsThinking] = useState(false);
 
@@ -71,44 +73,49 @@ export function useCopilotChat() {
     [isThinking, messages]
   );
 
-  const approveProposal = useCallback(async (messageId: string) => {
-    const target = messages.find((message) => message.id === messageId);
-    if (!target?.proposal) {
-      return;
-    }
+  /**
+   * Signs the trade the proposal describes.
+   *
+   * This is the only path from the copilot to the chain, and it starts with a
+   * person pressing approve. The signature itself then happens in the wallet,
+   * so there are two deliberate acts between the model and any spend.
+   */
+  const approveProposal = useCallback(
+    async (messageId: string) => {
+      const target = messages.find((message) => message.id === messageId);
+      if (!target?.proposal) {
+        return;
+      }
 
-    setMessages((current) =>
-      current.map((message) =>
-        message.id === messageId ? { ...message, proposalOutcome: "approved" } : message
-      )
-    );
+      setMessages((current) =>
+        current.map((message) =>
+          message.id === messageId ? { ...message, proposalOutcome: "approved" } : message
+        )
+      );
 
-    try {
-      const response = await fetch("/api/execute", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ proposal: target.proposal }),
-      });
-      const result = (await response.json()) as { transactionHash?: string };
+      const outcome = await placeProposal(target.proposal, target.proposal.poolAddress);
 
       setMessages((current) =>
         current.map((message) =>
           message.id === messageId
-            ? { ...message, transactionHash: result.transactionHash }
+            ? {
+                ...message,
+                transactionHash: outcome.transactionHash,
+                proposalOutcome: outcome.ok ? "approved" : "rejected",
+              }
             : message
         )
       );
-    } catch {
-      setMessages((current) => [
-        ...current,
-        {
-          id: createMessageId(),
-          role: "assistant",
-          text: "The trade was approved but could not be sent. Nothing was signed.",
-        },
-      ]);
-    }
-  }, [messages]);
+
+      if (!outcome.ok) {
+        setMessages((current) => [
+          ...current,
+          { id: createMessageId(), role: "assistant", text: outcome.message },
+        ]);
+      }
+    },
+    [messages, placeProposal]
+  );
 
   const rejectProposal = useCallback((messageId: string) => {
     setMessages((current) =>

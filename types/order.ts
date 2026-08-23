@@ -15,6 +15,8 @@ import type { Asset, Side, WindowSeconds } from "./market";
 export interface WorkingOrder {
   orderId: string;
   marketId: string;
+  /** The pool this order rests on, needed to cancel or shrink it. */
+  poolAddress: string;
   asset: Asset;
   windowSeconds: WindowSeconds;
   side: Side;

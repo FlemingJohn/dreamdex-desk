@@ -188,6 +188,7 @@ export async function readWorkingOrders(address: string): Promise<WorkingOrder[]
     return {
       orderId: order.orderId ?? "",
       marketId: order.marketId ?? "",
+      poolAddress: order.poolAddress ?? "",
       asset: order.asset ?? "—",
       windowSeconds: Number(order.intervalSec ?? 0),
       side: order.side?.toLowerCase().includes("no") ? "down" : "up",

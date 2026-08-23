@@ -108,6 +108,7 @@ export async function buildTradeProposal({
   return {
     proposalId: `${marketId}-${Date.now()}`,
     marketId,
+    poolAddress: market.poolAddress,
     asset: market.asset,
     windowSeconds: market.windowSeconds,
     side,
