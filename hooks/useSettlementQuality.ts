@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
-import { getMockSettlementQuality } from "@/lib/mock/mockSettlementQuality";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
-/** Void rates and oracle source agreement, per series. */
+/** Void rate and resolution latency per series. */
 export function useSettlementQuality() {
-  const rows = useMemo(() => getMockSettlementQuality(), []);
-  return { rows, isLoading: false };
+  const { settlementQuality, isLoading, error } = useAnalytics();
+  return { rows: settlementQuality, isLoading, error };
 }

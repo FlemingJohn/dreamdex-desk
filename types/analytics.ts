@@ -42,14 +42,12 @@ export interface ProbabilityPathPoint {
 export interface LiquidityBreakdown {
   asset: Asset;
   windowSeconds: WindowSeconds;
+  /** How many windows of this series are in the sample. */
   windowsMeasured: number;
-  mintPairShare: number;
-  directFillShare: number;
-  burnPairShare: number;
-  medianDepthAtTouch: number;
-  medianSpread: number;
-  /** Minute of the window when resting liquidity typically shows up. */
-  liquidityArrivesAtMinute: number;
+  totalTrades: number;
+  totalVolumeUsdc: number;
+  averageVolumePerWindow: number;
+  averageTradesPerWindow: number;
 }
 
 /**
@@ -61,8 +59,7 @@ export interface SettlementQualityRow {
   windowSeconds: WindowSeconds;
   settledCount: number;
   voidRate: number;
-  averageSourcesAgreeing: number;
-  totalSources: number;
+  /** Seconds between expiry and resolution landing on-chain. */
   medianLatencySeconds: number;
 }
 

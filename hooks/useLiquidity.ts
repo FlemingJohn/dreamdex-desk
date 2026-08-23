@@ -1,10 +1,9 @@
 "use client";
 
-import { useMemo } from "react";
-import { getMockLiquidity } from "@/lib/mock/mockLiquidity";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
-/** How trades crossed, per series — mint-a-pair against genuine sellers. */
+/** Traded volume and trade counts per series. */
 export function useLiquidity() {
-  const breakdowns = useMemo(() => getMockLiquidity(), []);
-  return { breakdowns, isLoading: false };
+  const { liquidity, isLoading, error } = useAnalytics();
+  return { breakdowns: liquidity, isLoading, error };
 }
