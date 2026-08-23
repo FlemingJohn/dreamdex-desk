@@ -1,0 +1,73 @@
+/*
+ * Dashboard shell — the header, the split between the panel grid and the
+ * copilot, and the shared colours the panels read from.
+ *
+ * Up and down are a warm / cool pair rather than the usual red and green, so a
+ * side never reads as "good" or "bad" on its own. They are defined for both
+ * themes because the dashboard follows the viewer's system setting.
+ */
+
+:root {
+  --side-up: #0e8c7f;
+  --side-down: #c4643c;
+  --signal-warning: #a9660f;
+  --grid-line: color-mix(in srgb, var(--foreground) 8%, transparent);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --side-up: #5fd3c4;
+    --side-down: #e8815a;
+    --signal-warning: #e8a05a;
+  }
+}
+
+.dashboard-shell {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.875rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.dashboard-title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.dashboard-subtitle {
+  font-size: 0.75rem;
+  color: var(--muted-foreground);
+}
+
+.dashboard-body {
+  flex: 1;
+  min-height: 0;
+}
+
+.panel-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  padding: 1.25rem;
+  align-content: start;
+}
+
+@media (max-width: 1100px) {
+  .panel-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.panel-grid-wide {
+  grid-column: 1 / -1;
+}
