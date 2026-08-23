@@ -3,9 +3,9 @@ import { CopilotLauncher } from "@/components/copilot/CopilotLauncher";
 import { CopilotPanel } from "@/components/copilot/CopilotPanel";
 import { CopilotProvider } from "@/components/copilot/CopilotProvider";
 import { CopilotSurface } from "@/components/copilot/CopilotSurface";
+import { DashboardBody } from "@/components/layout/DashboardBody";
 import { DashboardHeader } from "@/components/layout/DashboardHeader";
 import { DashboardSidebar } from "@/components/layout/DashboardSidebar";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 /**
@@ -24,11 +24,7 @@ export default function DeskLayout({ children }: { children: ReactNode }) {
         <CopilotProvider>
           <div className="dashboard-shell">
             <DashboardHeader />
-            <div className="dashboard-body">
-              <ScrollArea className="h-full">
-                <div className="panel-grid">{children}</div>
-              </ScrollArea>
-            </div>
+            <DashboardBody>{children}</DashboardBody>
             <CopilotSurface panel={<CopilotPanel />} launcher={<CopilotLauncher />} />
           </div>
         </CopilotProvider>
