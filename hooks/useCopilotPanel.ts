@@ -3,11 +3,13 @@
 import { useCallback, useSyncExternalStore } from "react";
 
 const OPEN_STORAGE_KEY = "copilot-panel-open";
-const DEFAULT_WIDTH_PERCENT = 28;
-const DEFAULT_OPEN = true;
+const DEFAULT_OPEN = false;
 
 /**
- * Whether the copilot panel is showing, remembered between visits.
+ * Whether the copilot is showing, remembered between visits.
+ *
+ * It starts closed. The dashboard is the thing you came for, and the copilot is
+ * there when you want to ask it something.
  *
  * Browser storage is treated as what it is — something outside React that can
  * change on its own and can refuse to work at all. Every read and write is
@@ -59,9 +61,8 @@ function writeOpenState(isOpen: boolean): void {
 export function useCopilotPanel() {
   const isOpen = useSyncExternalStore(subscribe, readOpenState, readServerOpenState);
 
-  const toggle = useCallback(() => {
-    writeOpenState(!readOpenState());
-  }, []);
+  const open = useCallback(() => writeOpenState(true), []);
+  const close = useCallback(() => writeOpenState(false), []);
 
-  return { isOpen, toggle, defaultWidthPercent: DEFAULT_WIDTH_PERCENT };
+  return { isOpen, open, close };
 }
