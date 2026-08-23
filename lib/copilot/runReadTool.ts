@@ -2,7 +2,9 @@ import { getMockCalibration } from "@/lib/mock/mockCalibration";
 import { getMockLiquidity } from "@/lib/mock/mockLiquidity";
 import { getMockMarkets } from "@/lib/mock/mockMarkets";
 import { getMockPortfolio, sumUnclaimedWinnings } from "@/lib/mock/mockPortfolio";
+import { getMockOrderBook } from "@/lib/mock/mockOrderBook";
 import { getMockProbabilityPath } from "@/lib/mock/mockProbabilityPath";
+import { buildOracleExplorerUrl, getMockSettlementReceipts } from "@/lib/mock/mockSettlementReceipt";
 import { getMockSettlementQuality } from "@/lib/mock/mockSettlementQuality";
 import type { ReadToolName } from "@/lib/copilot/toolDefinitions";
 
@@ -19,7 +21,7 @@ function currentSecond(): number {
  * anything — they only look. Swapping the mock calls here for SDK reads is the
  * single step that takes the copilot from demo to live data.
  */
-export function runReadTool(name: ReadToolName): unknown {
+export function runReadTool(name: ReadToolName, args: Record<string, unknown> = {}): unknown {
   switch (name) {
     case "listMarkets":
       return getMockMarkets(currentSecond()).filter(
@@ -42,6 +44,15 @@ export function runReadTool(name: ReadToolName): unknown {
       const portfolio = getMockPortfolio();
       return { ...portfolio, unclaimedTotalUsdc: sumUnclaimedWinnings(portfolio) };
     }
+
+    case "getOrderBook":
+      return getMockOrderBook(String(args.marketId ?? "0x8471"));
+
+    case "explainSettlement":
+      return getMockSettlementReceipts().map((receipt) => ({
+        ...receipt,
+        explorerUrl: buildOracleExplorerUrl(receipt.oracleQuestionId),
+      }));
 
     default:
       return { error: `Unknown tool: ${name}` };
